@@ -1,0 +1,19 @@
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
+.cache
+*.tmp
+
+# Dependencies
+node_modules
+
+# Editor / IDE
+.vscode
+*.sublime*
+
+# Playwright output
+.playwright/
+.playwright-mcp/

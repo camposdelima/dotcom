@@ -1,0 +1,153 @@
+function createGame(rows, cols) {
+  const horizontalEdges = [];
+  for (let r = 0; r < rows; r++) {
+    horizontalEdges.push(new Array(cols - 1).fill(null));
+  }
+  const verticalEdges = [];
+  for (let r = 0; r < rows - 1; r++) {
+    verticalEdges.push(new Array(cols).fill(null));
+  }
+  return {
+    rows, cols,
+    currentPlayer: 0,
+    winner: null,
+    winningPath: null,
+    winningEdges: null,
+    horizontalEdges,
+    verticalEdges,
+    moves: [],
+    scoredBy: -1,
+  };
+}
+
+function hasNS(game, row, col, player) {
+  if (row <= 0 || row >= game.rows - 1) return false;
+  return game.verticalEdges[row - 1][col] === player
+      && game.verticalEdges[row][col] === player;
+}
+
+function hasEW(game, row, col, player) {
+  if (col <= 0 || col >= game.cols - 1) return false;
+  return game.horizontalEdges[row][col - 1] === player
+      && game.horizontalEdges[row][col] === player;
+}
+
+function isEdgeAllowed(game, row, col, orientation, player) {
+  if (orientation === 'h') {
+    return !hasNS(game, row, col, 1 - player)
+        && !hasNS(game, row, col + 1, 1 - player);
+  }
+  return !hasEW(game, row, col, 1 - player)
+      && !hasEW(game, row + 1, col, 1 - player);
+}
+
+function placeEdge(game, row, col, orientation) {
+  if (game.winner !== null) return false;
+
+  const edge = orientation === 'h'
+    ? game.horizontalEdges[row][col]
+    : game.verticalEdges[row][col];
+  if (edge !== null) return false;
+  if (!isEdgeAllowed(game, row, col, orientation, game.currentPlayer)) return false;
+
+  if (orientation === 'h') {
+    game.horizontalEdges[row][col] = game.currentPlayer;
+  } else {
+    game.verticalEdges[row][col] = game.currentPlayer;
+  }
+  game.moves.push({ row, col, orientation, player: game.currentPlayer });
+
+  const result = checkWin(game, game.currentPlayer);
+  if (result) {
+    game.winner = game.currentPlayer;
+    game.winningPath = result.points;
+    game.winningEdges = result.edges;
+    return true;
+  }
+
+  game.currentPlayer = 1 - game.currentPlayer;
+  return true;
+}
+
+function checkWin(game, player) {
+  const { rows, cols } = game;
+  const visited = new Set();
+  const parent = new Map();
+  const keyFn = (r, c) => r * cols + c;
+  const queue = [];
+
+  for (let r = 0; r < rows; r++) {
+    queue.push([r, 0]);
+    visited.add(keyFn(r, 0));
+    parent.set(keyFn(r, 0), null);
+  }
+  const isEnd = (r, c) => c === cols - 1;
+
+  while (queue.length > 0) {
+    const [r, c] = queue.shift();
+    const k = keyFn(r, c);
+
+    if (isEnd(r, c)) {
+      const points = [];
+      let cur = k;
+      while (cur !== null) {
+        const cr = Math.floor(cur / cols);
+        const cc = cur % cols;
+        points.unshift({ row: cr, col: cc });
+        cur = parent.get(cur);
+      }
+
+      const edges = [];
+      for (let i = 0; i < points.length - 1; i++) {
+        const a = points[i];
+        const b = points[i + 1];
+        if (b.row === a.row && b.col === a.col + 1) {
+          edges.push({ orientation: 'h', row: a.row, col: a.col });
+        } else if (b.row === a.row && b.col === a.col - 1) {
+          edges.push({ orientation: 'h', row: a.row, col: b.col });
+        } else if (b.row === a.row + 1 && b.col === a.col) {
+          edges.push({ orientation: 'v', row: a.row, col: a.col });
+        } else if (b.row === a.row - 1 && b.col === a.col) {
+          edges.push({ orientation: 'v', row: b.row, col: a.col });
+        }
+      }
+
+      return { points, edges };
+    }
+
+    if (c < cols - 1 && game.horizontalEdges[r][c] === player) {
+      const nk = keyFn(r, c + 1);
+      if (!visited.has(nk)) {
+        visited.add(nk);
+        parent.set(nk, k);
+        queue.push([r, c + 1]);
+      }
+    }
+    if (c > 0 && game.horizontalEdges[r][c - 1] === player) {
+      const nk = keyFn(r, c - 1);
+      if (!visited.has(nk)) {
+        visited.add(nk);
+        parent.set(nk, k);
+        queue.push([r, c - 1]);
+      }
+    }
+    if (r < rows - 1 && game.verticalEdges[r][c] === player) {
+      const nk = keyFn(r + 1, c);
+      if (!visited.has(nk)) {
+        visited.add(nk);
+        parent.set(nk, k);
+        queue.push([r + 1, c]);
+      }
+    }
+    if (r > 0 && game.verticalEdges[r - 1][c] === player) {
+      const nk = keyFn(r - 1, c);
+      if (!visited.has(nk)) {
+        visited.add(nk);
+        parent.set(nk, k);
+        queue.push([r - 1, c]);
+      }
+    }
+  }
+
+  return null;
+}
