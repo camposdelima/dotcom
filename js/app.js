@@ -161,10 +161,22 @@ function handleDragStart(e) {
   dragStartPoint = findNearestPoint(canvas, x, y);
   
   if (dragStartPoint) {
+    currentPreviewEdge = null;
     canvas.classList.remove('grab');
     canvas.classList.add('dragging');
     setupDragEventHandlers();
   }
+}
+
+function isEdgeAdjacentToPoint(edge, point) {
+  const { row, col, orientation } = edge;
+  if (orientation === 'h') {
+    return row === point.row && (col === point.col || col === point.col - 1);
+  }
+  if (orientation === 'v') {
+    return col === point.col && (row === point.row || row === point.row - 1);
+  }
+  return false;
 }
 
 function handleDragMove(e) {
@@ -186,9 +198,10 @@ function handleDragMove(e) {
   const y = currentY - rect.top;
   
   const edge = findEdgeAt(canvas, game, x, y);
-  currentPreviewEdge = edge;
+  const valid = edge && isEdgeAdjacentToPoint(edge, dragStartPoint);
+  if (valid) currentPreviewEdge = edge;
   
-  drawBoardWithPreview(ctx, canvas, game, dragStartPoint, edge);
+  drawBoardWithPreview(ctx, canvas, game, dragStartPoint, currentPreviewEdge);
 }
 
 function handleDragEnd(e) {
@@ -230,17 +243,16 @@ function updateGameState() {
 function toggleDragMode() {
   dragModeEnabled = !dragModeEnabled;
   localStorage.setItem('dragMode', dragModeEnabled ? '1' : '0');
-  const modeDragBtn = document.getElementById('mode-drag');
-  const modeToggleBtn = document.getElementById('mode-toggle');
+  const btn = document.getElementById('mode-toggle');
   
   if (dragModeEnabled) {
-    modeDragBtn.classList.add('active');
-    modeToggleBtn.classList.remove('active');
+    btn.classList.add('active');
+    btn.textContent = 'Arrastar';
     canvas.classList.remove('dragging');
     canvas.classList.add('grab');
   } else {
-    modeDragBtn.classList.remove('active');
-    modeToggleBtn.classList.add('active');
+    btn.classList.remove('active');
+    btn.textContent = 'Clique';
     canvas.classList.remove('dragging', 'grab');
     cleanupDragEventHandlers();
   }
@@ -263,20 +275,18 @@ function loadDragMode() {
 }
 
 function applyDragVisuals() {
-  const modeDragBtn = document.getElementById('mode-drag');
-  const modeToggleBtn = document.getElementById('mode-toggle');
-  modeDragBtn.classList.add('active');
-  modeToggleBtn.classList.remove('active');
+  const btn = document.getElementById('mode-toggle');
+  btn.classList.add('active');
+  btn.textContent = 'Arrastar';
   canvas.classList.remove('dragging');
   canvas.classList.add('grab');
   updateModeIndicator();
 }
 
 function applyClickVisuals() {
-  const modeDragBtn = document.getElementById('mode-drag');
-  const modeToggleBtn = document.getElementById('mode-toggle');
-  modeDragBtn.classList.remove('active');
-  modeToggleBtn.classList.add('active');
+  const btn = document.getElementById('mode-toggle');
+  btn.classList.remove('active');
+  btn.textContent = 'Clique';
   canvas.classList.remove('dragging', 'grab');
   cleanupDragEventHandlers();
   updateModeIndicator();
@@ -310,12 +320,7 @@ canvas.addEventListener('touchstart', handleBoardInteraction, { passive: false }
 canvas.addEventListener('mousedown', handleDragStart);
 canvas.addEventListener('touchstart', handleDragStart, { passive: false });
 
-const modeToggleBtn = document.getElementById('mode-toggle');
-const modeDragBtn = document.getElementById('mode-drag');
-modeToggleBtn.addEventListener('click', () => {
-  if (dragModeEnabled) toggleDragMode();
-});
-modeDragBtn.addEventListener('click', toggleDragMode);
+document.getElementById('mode-toggle').addEventListener('click', toggleDragMode);
 
 resetScoreBtn.addEventListener('click', () => {
   scoreBlue = 0;

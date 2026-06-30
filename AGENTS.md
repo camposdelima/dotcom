@@ -73,6 +73,73 @@ dotcom/
 Abra o `index.html` em qualquer navegador moderno.  
 No celular, sirva via HTTP local (ex: `python -m http.server 8080`) ou use uma extensão Live Server no VS Code.
 
+## Testes com Playwright
+
+Usamos as ferramentas Playwright MCP para testes manuais automatizados.
+
+### Servidor HTTP (necessário)
+
+```powershell
+# Iniciar em background (executar uma vez)
+powershell "Start-Process -WindowStyle Hidden python '-m http.server 8080'"
+
+# OU manualmente em terminal separado
+python -m http.server 8080
+```
+
+### Cache do navegador
+
+O navegador frequentemente serve `app.js` velho do cache. Sempre use cache buster:
+
+```js
+await page.goto('http://localhost:8080/?t=' + Date.now(), { waitUntil: 'networkidle' });
+```
+
+### Padrão para testar drag mode
+
+O `game` é declarado com `let` (não `var`), então **não** está em `window.game`. Para verificar estado do jogo, use o DOM:
+
+```js
+// Verificar se um movimento foi feito (undo habilitado, turno mudou)
+const snap = await page.evaluate(() => {
+  const undoBtn = document.getElementById('undo-btn');
+  return {
+    undoDisabled: undoBtn?.disabled,
+    turn: document.querySelector('#info-bar span')?.textContent,
+    progress: document.querySelector('#score-0 .progress-fill')?.textContent
+  };
+});
+```
+
+Para obter coordenadas dos pontos no canvas:
+
+```js
+const rect = await page.locator('#canvas').boundingBox();
+const coords = await page.evaluate(() => {
+  const c = document.getElementById('canvas');
+  const layout = computeLayout(c, game);
+  const p = pointPos(layout, 0, 0); // { x, y } dentro do canvas
+  return { p, cell: layout.cell, ox: layout.ox, oy: layout.oy, w: c.width };
+});
+// Coordenadas na página:
+const pageX = rect.x + coords.p.x;
+const pageY = rect.y + coords.p.y;
+```
+
+### Simular drag (modo Arrastar)
+
+```js
+await page.mouse.move(startPageX, startPageY);
+await page.mouse.down();
+await page.waitForTimeout(100);
+await page.mouse.move(endPageX, endPageY, { steps: 10 });
+await page.waitForTimeout(100);
+await page.mouse.up();
+await page.waitForTimeout(300);
+```
+
+O `steps` faz o mouse passar por posições intermediárias, essencial para que o `handleDragMove` encontre a aresta durante o arrasto.
+
 ## Próximos Passos Possíveis
 
 - [ ] Modo contra IA (algoritmo minimax / busca em grafo)

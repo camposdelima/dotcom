@@ -206,8 +206,8 @@ function drawBoardWithPreview(ctx, canvas, game, startPoint, previewEdge) {
     const layout = computeLayout(canvas, game);
     const startPos = pointPos(layout, startPoint.row, startPoint.col);
     const endPos = previewEdge.orientation === 'h'
-      ? pointPos(layout, previewEdge.row, previewEdge.col + 1)
-      : pointPos(layout, previewEdge.row + 1, previewEdge.col);
+      ? pointPos(layout, previewEdge.row, startPoint.col === previewEdge.col ? previewEdge.col + 1 : previewEdge.col)
+      : pointPos(layout, startPoint.row === previewEdge.row ? previewEdge.row + 1 : previewEdge.row, previewEdge.col);
 
     ctx.setLineDash([5, 5]);
     const previewColor = game.currentPlayer === 0 ? COLORS.blue : COLORS.green;
