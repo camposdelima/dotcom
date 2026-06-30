@@ -18,7 +18,7 @@ let game = null;
 let scoreBlue = 0;
 let scoreGreen = 0;
 
-let dragModeEnabled = false;
+let dragModeEnabled = true;
 let dragStartPoint = null;
 let currentPreviewEdge = null;
 let dragEventHandlers = null;
@@ -250,9 +250,36 @@ function toggleDragMode() {
 
 function loadDragMode() {
   const saved = localStorage.getItem('dragMode');
-  if (saved === '1' && !dragModeEnabled) {
-    toggleDragMode();
+  if (saved === '0') {
+    if (dragModeEnabled) toggleDragMode();
+    else applyClickVisuals();
+  } else if (saved === '1') {
+    if (!dragModeEnabled) toggleDragMode();
+    else applyDragVisuals();
+  } else {
+    localStorage.setItem('dragMode', '1');
+    applyDragVisuals();
   }
+}
+
+function applyDragVisuals() {
+  const modeDragBtn = document.getElementById('mode-drag');
+  const modeToggleBtn = document.getElementById('mode-toggle');
+  modeDragBtn.classList.add('active');
+  modeToggleBtn.classList.remove('active');
+  canvas.classList.remove('dragging');
+  canvas.classList.add('grab');
+  updateModeIndicator();
+}
+
+function applyClickVisuals() {
+  const modeDragBtn = document.getElementById('mode-drag');
+  const modeToggleBtn = document.getElementById('mode-toggle');
+  modeDragBtn.classList.remove('active');
+  modeToggleBtn.classList.add('active');
+  canvas.classList.remove('dragging', 'grab');
+  cleanupDragEventHandlers();
+  updateModeIndicator();
 }
 
 function updateModeIndicator() {
