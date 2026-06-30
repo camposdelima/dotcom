@@ -17,3 +17,11 @@ node_modules
 # Playwright output
 .playwright/
 .playwright-mcp/
+
+# Temp / generated files
+index.js
+page-snapshot.md
+dotcom-fixed.png
+board-response.txt
+width-test.png
+width-test.txt

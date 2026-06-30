@@ -2,13 +2,13 @@ const COLORS = {
   blue: '#3498DB',
   blueGlow: 'rgba(52,152,219,0.25)',
   blueWin: '#5DADE2',
-  red: '#E74C3C',
-  redGlow: 'rgba(231,76,60,0.25)',
-  redWin: '#EC7063',
+  green: '#2ECC71',
+  greenGlow: 'rgba(46,204,113,0.25)',
+  greenWin: '#58D68D',
   dot: '#2C3E50',
   bg: '#F4F6F7',
   sideBlue: 'rgba(52,152,219,0.12)',
-  sideRed: 'rgba(231,76,60,0.12)',
+  sideGreen: 'rgba(46,204,113,0.12)',
 };
 
 function computeLayout(canvas, game) {
@@ -54,7 +54,7 @@ function drawBoard(ctx, canvas, game) {
   ctx.fillRect(gridLeft - 8, gridTop, barW, gridBottom - gridTop);
   ctx.fillRect(gridRight + 3, gridTop, barW, gridBottom - gridTop);
 
-  ctx.fillStyle = COLORS.sideRed;
+  ctx.fillStyle = COLORS.sideGreen;
   ctx.fillRect(gridLeft - 4, gridTop, barW, gridBottom - gridTop);
   ctx.fillRect(gridRight + 9, gridTop, barW, gridBottom - gridTop);
 
@@ -96,7 +96,7 @@ function drawBoard(ctx, canvas, game) {
     for (let c = 0; c < game.cols - 1; c++) {
       const val = game.horizontalEdges[r][c];
       if (val === null) continue;
-      drawEdge(r, c, 'h', val === 0 ? COLORS.blue : COLORS.red, edgeW);
+      drawEdge(r, c, 'h', val === 0 ? COLORS.blue : COLORS.green, edgeW);
     }
   }
 
@@ -104,13 +104,13 @@ function drawBoard(ctx, canvas, game) {
     for (let c = 0; c < game.cols; c++) {
       const val = game.verticalEdges[r][c];
       if (val === null) continue;
-      drawEdge(r, c, 'v', val === 0 ? COLORS.blue : COLORS.red, edgeW);
+      drawEdge(r, c, 'v', val === 0 ? COLORS.blue : COLORS.green, edgeW);
     }
   }
 
   if (game.winningEdges) {
-    const hlColor = game.winner === 0 ? COLORS.blueWin : COLORS.redWin;
-    ctx.shadowColor = game.winner === 0 ? COLORS.blue : COLORS.red;
+    const hlColor = game.winner === 0 ? COLORS.blueWin : COLORS.greenWin;
+    ctx.shadowColor = game.winner === 0 ? COLORS.blue : COLORS.green;
     ctx.shadowBlur = 10;
     for (const e of game.winningEdges) {
       drawEdge(e.row, e.col, e.orientation, hlColor, edgeW + 4);
@@ -178,52 +178,52 @@ function distToSegment(px, py, x1, y1, x2, y2) {
   return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
 }
 
-function findNearestPoint(canvas, px, py) {
+function findNearestPoint(canvas, x, y) {
   const layout = computeLayout(canvas, game);
   let nearest = null;
   let nearestDist = Infinity;
   const threshold = layout.cell * 0.5;
-  
+
   for (let r = 0; r < game.rows; r++) {
     for (let c = 0; c < game.cols; c++) {
       const p = pointPos(layout, r, c);
-      const dist = Math.hypot(px - p.x, py - p.y);
-      
+      const dist = Math.hypot(x - p.x, y - p.y);
+
       if (dist < nearestDist && dist < threshold) {
         nearestDist = dist;
         nearest = { row: r, col: c, x: p.x, y: p.y };
       }
     }
   }
-  
+
   return nearest;
 }
 
 function drawBoardWithPreview(ctx, canvas, game, startPoint, previewEdge) {
   drawBoard(ctx, canvas, game);
-  
+
   if (startPoint && previewEdge) {
     const layout = computeLayout(canvas, game);
     const startPos = pointPos(layout, startPoint.row, startPoint.col);
     const endPos = previewEdge.orientation === 'h'
       ? pointPos(layout, previewEdge.row, previewEdge.col + 1)
       : pointPos(layout, previewEdge.row + 1, previewEdge.col);
-    
+
     ctx.setLineDash([5, 5]);
-    const previewColor = game.currentPlayer === 0 ? COLORS.blue : COLORS.red;
+    const previewColor = game.currentPlayer === 0 ? COLORS.blue : COLORS.green;
     ctx.strokeStyle = previewColor;
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
     ctx.globalAlpha = 0.8;
-    
+
     ctx.beginPath();
     ctx.moveTo(startPos.x, startPos.y);
     ctx.lineTo(endPos.x, endPos.y);
     ctx.stroke();
-    
+
     ctx.globalAlpha = 1.0;
     ctx.setLineDash([]);
-    
+
     ctx.fillStyle = previewColor;
     ctx.shadowColor = previewColor;
     ctx.shadowBlur = 10;

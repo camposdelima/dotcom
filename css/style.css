@@ -129,9 +129,9 @@ header h1 {
 }
 
 .mode-btn.danger {
-  background: #E74C3C;
+  background: #2ECC71;
   color: white;
-  border-color: #E74C3C;
+  border-color: #2ECC71;
 }
 
 .mode-btn:hover:not(.active) {
@@ -175,8 +175,8 @@ header h1 {
   transition: width 0.25s;
 }
 
-#progress-azul-fill { background: #3498DB; }
-#progress-vermelho-fill { background: #E74C3C; }
+#progress-blue-fill { background: #3498DB; }
+#progress-green-fill { background: #2ECC71; }
 
 .progress-val {
   font-size: 0.65rem;

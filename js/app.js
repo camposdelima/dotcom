@@ -7,16 +7,16 @@ const newGameBtn = document.getElementById('new-game');
 const sizeSelect = document.getElementById('size-select');
 const undoBtn = document.getElementById('undo-btn');
 const resetScoreBtn = document.getElementById('reset-score-btn');
-const scoreAzulEl = document.getElementById('score-azul');
-const scoreVermelhoEl = document.getElementById('score-vermelho');
-const progressAzulFill = document.getElementById('progress-azul-fill');
-const progressVermelhoFill = document.getElementById('progress-vermelho-fill');
-const progressAzulVal = document.getElementById('progress-azul-val');
-const progressVermelhoVal = document.getElementById('progress-vermelho-val');
+const scoreBlueEl = document.getElementById('score-blue');
+const scoreGreenEl = document.getElementById('score-green');
+const progressBlueFill = document.getElementById('progress-blue-fill');
+const progressGreenFill = document.getElementById('progress-green-fill');
+const progressBlueVal = document.getElementById('progress-blue-val');
+const progressGreenVal = document.getElementById('progress-green-val');
 
 let game = null;
-let scoreAzul = 0;
-let scoreVermelho = 0;
+let scoreBlue = 0;
+let scoreGreen = 0;
 
 let dragModeEnabled = false;
 let dragStartPoint = null;
@@ -41,8 +41,8 @@ function initGame(size) {
 }
 
 function updateScoreDisplay() {
-  scoreAzulEl.textContent = scoreAzul;
-  scoreVermelhoEl.textContent = scoreVermelho;
+  scoreBlueEl.textContent = scoreBlue;
+  scoreGreenEl.textContent = scoreGreen;
 }
 
 function updateProgressDisplay() {
@@ -51,24 +51,24 @@ function updateProgressDisplay() {
   const w1 = getProgress(game, 1);
   const pct0 = max > 0 ? Math.round((w0 / max) * 100) : 0;
   const pct1 = max > 0 ? Math.round((w1 / max) * 100) : 0;
-  progressAzulFill.style.width = Math.min(pct0, 100) + '%';
-  progressVermelhoFill.style.width = Math.min(pct1, 100) + '%';
-  progressAzulVal.textContent = w0 + '/' + max;
-  progressVermelhoVal.textContent = w1 + '/' + max;
+  progressBlueFill.style.width = Math.min(pct0, 100) + '%';
+  progressGreenFill.style.width = Math.min(pct1, 100) + '%';
+  progressBlueVal.textContent = w0 + '/' + max;
+  progressGreenVal.textContent = w1 + '/' + max;
 }
 
 function updateUI() {
   undoBtn.disabled = game.moves.length === 0;
 
   if (game.winner !== null) {
-    const name = game.winner === 0 ? 'Azul' : 'Vermelho';
+    const name = game.winner === 0 ? 'Azul' : 'Verde';
     turnText.textContent = `${name} venceu!`;
-    turnDot.style.background = game.winner === 0 ? '#3498DB' : '#E74C3C';
+    turnDot.style.background = game.winner === 0 ? '#3498DB' : '#2ECC71';
     messageEl.textContent = `${name} conectou Esquerda ↔ Direita!`;
   } else {
-    const name = game.currentPlayer === 0 ? 'Azul' : 'Vermelho';
+    const name = game.currentPlayer === 0 ? 'Azul' : 'Verde';
     turnText.textContent = `${name}: Esquerda ↔ Direita`;
-    turnDot.style.background = game.currentPlayer === 0 ? '#3498DB' : '#E74C3C';
+    turnDot.style.background = game.currentPlayer === 0 ? '#3498DB' : '#2ECC71';
     messageEl.textContent = '';
   }
 
@@ -99,14 +99,14 @@ function handleBoardInteraction(e) {
   if (game.winner !== null) {
     if (game.scoredBy === -1) {
       game.scoredBy = game.winner;
-      if (game.winner === 0) scoreAzul++;
-      else scoreVermelho++;
+      if (game.winner === 0) scoreBlue++;
+      else scoreGreen++;
     } else if (game.scoredBy !== game.winner) {
-      if (game.scoredBy === 0) scoreAzul--;
-      else scoreVermelho--;
+      if (game.scoredBy === 0) scoreBlue--;
+      else scoreGreen--;
       game.scoredBy = game.winner;
-      if (game.winner === 0) scoreAzul++;
-      else scoreVermelho++;
+      if (game.winner === 0) scoreBlue++;
+      else scoreGreen++;
     }
   }
   drawBoard(ctx, canvas, game);
@@ -214,14 +214,14 @@ function updateGameState() {
   if (game.winner !== null) {
     if (game.scoredBy === -1) {
       game.scoredBy = game.winner;
-      if (game.winner === 0) scoreAzul++;
-      else scoreVermelho++;
+      if (game.winner === 0) scoreBlue++;
+      else scoreGreen++;
     } else if (game.scoredBy !== game.winner) {
-      if (game.scoredBy === 0) scoreAzul--;
-      else scoreVermelho--;
+      if (game.scoredBy === 0) scoreBlue--;
+      else scoreGreen--;
       game.scoredBy = game.winner;
-      if (game.winner === 0) scoreAzul++;
-      else scoreVermelho++;
+      if (game.winner === 0) scoreBlue++;
+      else scoreGreen++;
     }
     updateScoreDisplay();
   }
@@ -250,7 +250,7 @@ function toggleDragMode() {
 function updateModeIndicator() {
   const messageEl = document.getElementById('message');
   if (dragModeEnabled) {
-    messageEl.textContent = 'Arraste: Clique num ponto e arraste para uma aresta';
+    messageEl.textContent = 'Drag: Click a dot and drag to an edge';
     messageEl.style.background = 'rgba(52, 152, 219, 0.1)';
   } else {
     messageEl.textContent = '';
@@ -283,8 +283,8 @@ modeToggleBtn.addEventListener('click', () => {
 modeDragBtn.addEventListener('click', toggleDragMode);
 
 resetScoreBtn.addEventListener('click', () => {
-  scoreAzul = 0;
-  scoreVermelho = 0;
+  scoreBlue = 0;
+  scoreGreen = 0;
   updateScoreDisplay();
   resetDragState();
 });
