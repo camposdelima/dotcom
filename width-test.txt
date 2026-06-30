@@ -1,0 +1,23 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - heading "DOTCOM" [level=1] [ref=e4]
+  - generic [ref=e5]:
+    - generic [ref=e8]: "0"
+    - generic [ref=e11]: "1"
+    - button "↻" [ref=e12] [cursor=pointer]
+  - generic [ref=e13]:
+    - generic [ref=e14]:
+      - generic [ref=e15]: Azul
+      - generic [ref=e17]: 2/6
+    - generic [ref=e18]:
+      - generic [ref=e19]: Vermelho
+      - generic [ref=e21]: 2/6
+  - generic [ref=e25]: "Azul: Esquerda ↔ Direita"
+  - generic [ref=e28]:
+    - combobox [ref=e29] [cursor=pointer]:
+      - option "5×5 (Fácil)" [selected]
+      - option "7×7 (Médio)"
+      - option "9×9 (Difícil)"
+      - option "11×11 (Expert)"
+    - button "⟲" [ref=e30] [cursor=pointer]
+    - button "Novo Jogo" [ref=e31] [cursor=pointer]

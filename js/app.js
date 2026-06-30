@@ -161,6 +161,7 @@ function handleDragStart(e) {
   dragStartPoint = findNearestPoint(canvas, x, y);
   
   if (dragStartPoint) {
+    canvas.classList.remove('grab');
     canvas.classList.add('dragging');
     setupDragEventHandlers();
   }
@@ -201,6 +202,7 @@ function handleDragEnd(e) {
   }
   
   canvas.classList.remove('dragging');
+  canvas.classList.add('grab');
   cleanupDragEventHandlers();
   drawBoard(ctx, canvas, game);
 }
@@ -233,11 +235,12 @@ function toggleDragMode() {
   if (dragModeEnabled) {
     modeDragBtn.classList.add('active');
     modeToggleBtn.classList.remove('active');
-    canvas.classList.add('dragging');
+    canvas.classList.remove('dragging');
+    canvas.classList.add('grab');
   } else {
     modeDragBtn.classList.remove('active');
     modeToggleBtn.classList.add('active');
-    canvas.classList.remove('dragging');
+    canvas.classList.remove('dragging', 'grab');
     cleanupDragEventHandlers();
   }
   
@@ -262,7 +265,7 @@ function resetDragState() {
   const modeToggleBtn = document.getElementById('mode-toggle');
   modeDragBtn.classList.remove('active');
   modeToggleBtn.classList.add('active');
-  canvas.classList.remove('dragging');
+  canvas.classList.remove('dragging', 'grab');
 }
 
 // Event listeners

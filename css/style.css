@@ -140,7 +140,11 @@ header h1 {
 }
 
 #canvas.dragging {
-  cursor: crosshair;
+  cursor: grabbing;
+}
+
+#canvas.grab {
+  cursor: grab;
 }
 
 .progress-group {
