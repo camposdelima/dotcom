@@ -229,6 +229,7 @@ function updateGameState() {
 
 function toggleDragMode() {
   dragModeEnabled = !dragModeEnabled;
+  localStorage.setItem('dragMode', dragModeEnabled ? '1' : '0');
   const modeDragBtn = document.getElementById('mode-drag');
   const modeToggleBtn = document.getElementById('mode-toggle');
   
@@ -247,6 +248,13 @@ function toggleDragMode() {
   updateModeIndicator();
 }
 
+function loadDragMode() {
+  const saved = localStorage.getItem('dragMode');
+  if (saved === '1' && !dragModeEnabled) {
+    toggleDragMode();
+  }
+}
+
 function updateModeIndicator() {
   const messageEl = document.getElementById('message');
   if (dragModeEnabled) {
@@ -260,12 +268,12 @@ function updateModeIndicator() {
 
 function resetDragState() {
   cleanupDragEventHandlers();
-  dragModeEnabled = false;
-  const modeDragBtn = document.getElementById('mode-drag');
-  const modeToggleBtn = document.getElementById('mode-toggle');
-  modeDragBtn.classList.remove('active');
-  modeToggleBtn.classList.add('active');
-  canvas.classList.remove('dragging', 'grab');
+  if (dragModeEnabled) {
+    canvas.classList.remove('dragging');
+    canvas.classList.add('grab');
+  } else {
+    canvas.classList.remove('dragging', 'grab');
+  }
 }
 
 // Event listeners
@@ -317,3 +325,4 @@ toggleProgressBtn.addEventListener('click', () => {
 });
 
 initGame(parseInt(sizeSelect.value));
+loadDragMode();
