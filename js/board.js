@@ -1,14 +1,15 @@
 const COLORS = {
   blue: '#3498DB',
-  blueGlow: 'rgba(52,152,219,0.25)',
+  blueGlow: 'rgba(52,152,219,0.3)',
   blueWin: '#5DADE2',
   green: '#2ECC71',
-  greenGlow: 'rgba(46,204,113,0.25)',
+  greenGlow: 'rgba(46,204,113,0.3)',
   greenWin: '#58D68D',
-  dot: '#2C3E50',
+  dot: '#1a1a2e',
+  dotBorder: '#444',
   bg: '#F4F6F7',
-  sideBlue: 'rgba(52,152,219,0.12)',
-  sideGreen: 'rgba(46,204,113,0.12)',
+  sideBlue: 'rgba(52,152,219,0.15)',
+  sideGreen: 'rgba(46,204,113,0.15)',
 };
 
 function computeLayout(canvas, game) {
@@ -44,19 +45,36 @@ function drawBoard(ctx, canvas, game) {
   ctx.fillStyle = COLORS.bg;
   ctx.fillRect(0, 0, w, h);
 
-  const barW = 5;
+  const barW = 4;
+  const barR = 2;
   const gridTop = oy;
   const gridLeft = ox;
   const gridRight = ox + cell * (game.cols - 1);
   const gridBottom = oy + cell * (game.rows - 1);
+  const barH = gridBottom - gridTop;
+  const gridW = gridRight - gridLeft;
 
-  ctx.fillStyle = COLORS.sideBlue;
-  ctx.fillRect(gridLeft - 8, gridTop, barW, gridBottom - gridTop);
-  ctx.fillRect(gridRight + 3, gridTop, barW, gridBottom - gridTop);
+  function drawSideBars(color, offset) {
+    ctx.fillStyle = color;
+    if (game.winDirection === 'lr') {
+      ctx.beginPath();
+      ctx.roundRect(gridLeft - 8 + offset, gridTop, barW, barH, barR);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.roundRect(gridRight + 4 + offset, gridTop, barW, barH, barR);
+      ctx.fill();
+    } else {
+      ctx.beginPath();
+      ctx.roundRect(gridLeft, gridTop - 8 + offset, gridW, barW, barR);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.roundRect(gridLeft, gridBottom + 4 + offset, gridW, barW, barR);
+      ctx.fill();
+    }
+  }
 
-  ctx.fillStyle = COLORS.sideGreen;
-  ctx.fillRect(gridLeft - 4, gridTop, barW, gridBottom - gridTop);
-  ctx.fillRect(gridRight + 9, gridTop, barW, gridBottom - gridTop);
+  drawSideBars(COLORS.sideBlue, 0);
+  drawSideBars(COLORS.sideGreen, 5);
 
   function drawEdge(r, c, orient, color, width) {
     const p1 = pointPos(layout, r, c);
@@ -72,22 +90,22 @@ function drawBoard(ctx, canvas, game) {
     ctx.stroke();
   }
 
-  const edgeW = Math.max(4, cell * 0.1);
+  const edgeW = Math.max(4.5, cell * 0.11);
 
   ctx.setLineDash([4, 5]);
-  const dottedW = Math.max(1.5, cell * 0.03);
+  const dottedW = Math.max(1.5, cell * 0.035);
   for (let r = 0; r < game.rows; r++) {
     for (let c = 0; c < game.cols - 1; c++) {
       if (game.horizontalEdges[r][c] !== null) continue;
       if (!isEdgeAllowed(game, r, c, 'h', game.currentPlayer)) continue;
-      drawEdge(r, c, 'h', 'rgba(44,62,80,0.2)', dottedW);
+      drawEdge(r, c, 'h', 'rgba(44,62,80,0.18)', dottedW);
     }
   }
   for (let r = 0; r < game.rows - 1; r++) {
     for (let c = 0; c < game.cols; c++) {
       if (game.verticalEdges[r][c] !== null) continue;
       if (!isEdgeAllowed(game, r, c, 'v', game.currentPlayer)) continue;
-      drawEdge(r, c, 'v', 'rgba(44,62,80,0.2)', dottedW);
+      drawEdge(r, c, 'v', 'rgba(44,62,80,0.18)', dottedW);
     }
   }
   ctx.setLineDash([]);
@@ -123,6 +141,10 @@ function drawBoard(ctx, canvas, game) {
   for (let r = 0; r < game.rows; r++) {
     for (let c = 0; c < game.cols; c++) {
       const p = pointPos(layout, r, c);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, dotR + 1, 0, Math.PI * 2);
+      ctx.fillStyle = COLORS.dotBorder;
+      ctx.fill();
       ctx.beginPath();
       ctx.arc(p.x, p.y, dotR, 0, Math.PI * 2);
       ctx.fillStyle = COLORS.dot;
@@ -209,27 +231,35 @@ function drawBoardWithPreview(ctx, canvas, game, startPoint, previewEdge) {
       ? pointPos(layout, previewEdge.row, startPoint.col === previewEdge.col ? previewEdge.col + 1 : previewEdge.col)
       : pointPos(layout, startPoint.row === previewEdge.row ? previewEdge.row + 1 : previewEdge.row, previewEdge.col);
 
-    ctx.setLineDash([5, 5]);
     const previewColor = game.currentPlayer === 0 ? COLORS.blue : COLORS.green;
-    ctx.strokeStyle = previewColor;
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    ctx.globalAlpha = 0.8;
 
+    ctx.save();
+    ctx.globalAlpha = 0.35;
+    ctx.strokeStyle = previewColor;
+    ctx.lineWidth = 8;
+    ctx.lineCap = 'round';
+    ctx.setLineDash([]);
     ctx.beginPath();
     ctx.moveTo(startPos.x, startPos.y);
     ctx.lineTo(endPos.x, endPos.y);
     ctx.stroke();
-
-    ctx.globalAlpha = 1.0;
+    ctx.globalAlpha = 0.8;
+    ctx.setLineDash([6, 6]);
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(startPos.x, startPos.y);
+    ctx.lineTo(endPos.x, endPos.y);
+    ctx.stroke();
     ctx.setLineDash([]);
+    ctx.globalAlpha = 1;
 
     ctx.fillStyle = previewColor;
     ctx.shadowColor = previewColor;
-    ctx.shadowBlur = 10;
+    ctx.shadowBlur = 12;
     ctx.beginPath();
     ctx.arc(startPos.x, startPos.y, 6, 0, Math.PI * 2);
     ctx.fill();
     ctx.shadowBlur = 0;
+    ctx.restore();
   }
 }

@@ -17,11 +17,17 @@ const progressGreenVal = document.getElementById('progress-green-val');
 let game = null;
 let scoreBlue = 0;
 let scoreGreen = 0;
+let winDirection = 'lr';
 
 let dragModeEnabled = true;
 let dragStartPoint = null;
 let currentPreviewEdge = null;
 let dragEventHandlers = null;
+
+const DIRECTION_LABELS = {
+  lr: { name: 'Esquerda ↔ Direita', short: '↔', bar: 'lr' },
+  tb: { name: 'Cima ↔ Baixo', short: '↕', bar: 'tb' },
+};
 
 function resizeCanvas() {
   const container = document.getElementById('board-container');
@@ -33,11 +39,12 @@ function resizeCanvas() {
 }
 
 function initGame(size) {
-  game = createGame(size, size);
+  game = createGame(size, size, winDirection);
   messageEl.textContent = '';
   undoBtn.disabled = true;
   updateUI();
   resizeCanvas();
+  updateDirectionBtn();
 }
 
 function updateScoreDisplay() {
@@ -46,7 +53,7 @@ function updateScoreDisplay() {
 }
 
 function updateProgressDisplay() {
-  const max = game.cols - 1;
+  const max = winDirection === 'lr' ? game.cols - 1 : game.rows - 1;
   const w0 = getProgress(game, 0);
   const w1 = getProgress(game, 1);
   const pct0 = max > 0 ? Math.round((w0 / max) * 100) : 0;
@@ -59,21 +66,30 @@ function updateProgressDisplay() {
 
 function updateUI() {
   undoBtn.disabled = game.moves.length === 0;
+  const dirLabel = DIRECTION_LABELS[winDirection].name;
 
   if (game.winner !== null) {
     const name = game.winner === 0 ? 'Azul' : 'Verde';
     turnText.textContent = `${name} venceu!`;
     turnDot.style.background = game.winner === 0 ? '#3498DB' : '#2ECC71';
-    messageEl.textContent = `${name} conectou Esquerda ↔ Direita!`;
+    turnDot.style.boxShadow = `0 0 10px ${game.winner === 0 ? '#3498DB' : '#2ECC71'}`;
+    messageEl.textContent = `${name} conectou ${dirLabel}!`;
   } else {
     const name = game.currentPlayer === 0 ? 'Azul' : 'Verde';
-    turnText.textContent = `${name}: Esquerda ↔ Direita`;
+    turnText.textContent = `${name}:`;
     turnDot.style.background = game.currentPlayer === 0 ? '#3498DB' : '#2ECC71';
+    turnDot.style.boxShadow = `0 0 8px ${game.currentPlayer === 0 ? '#3498DB' : '#2ECC71'}`;
     messageEl.textContent = '';
   }
 
   updateScoreDisplay();
   updateProgressDisplay();
+}
+
+function updateDirectionBtn() {
+  const btn = document.getElementById('direction-toggle');
+  btn.textContent = DIRECTION_LABELS[winDirection].name;
+  btn.title = winDirection === 'lr' ? 'Cima ↔ Baixo' : 'Esquerda ↔ Direita';
 }
 
 function handleBoardInteraction(e) {
@@ -313,6 +329,23 @@ function resetDragState() {
   }
 }
 
+function toggleWinDirection() {
+  winDirection = winDirection === 'lr' ? 'tb' : 'lr';
+  localStorage.setItem('winDirection', winDirection);
+  initGame(parseInt(sizeSelect.value));
+  resetDragState();
+}
+
+function loadWinDirection() {
+  const saved = localStorage.getItem('winDirection');
+  if (saved === 'lr' || saved === 'tb') {
+    winDirection = saved;
+  } else {
+    winDirection = 'lr';
+    localStorage.setItem('winDirection', 'lr');
+  }
+}
+
 // Event listeners
 canvas.addEventListener('click', handleBoardInteraction);
 canvas.addEventListener('touchstart', handleBoardInteraction, { passive: false });
@@ -321,6 +354,7 @@ canvas.addEventListener('mousedown', handleDragStart);
 canvas.addEventListener('touchstart', handleDragStart, { passive: false });
 
 document.getElementById('mode-toggle').addEventListener('click', toggleDragMode);
+document.getElementById('direction-toggle').addEventListener('click', toggleWinDirection);
 
 resetScoreBtn.addEventListener('click', () => {
   scoreBlue = 0;
@@ -356,5 +390,6 @@ toggleProgressBtn.addEventListener('click', () => {
   toggleProgressBtn.dataset.visible = hidden ? '0' : '1';
 });
 
+loadWinDirection();
 initGame(parseInt(sizeSelect.value));
 loadDragMode();

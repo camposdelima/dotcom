@@ -4,63 +4,66 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>DotCom — Jogo de Conexão</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
   <div id="app">
     <header>
       <h1>DOTCOM</h1>
     </header>
-    <div id="score-bar">
-      <span class="score-item">
-        <span class="score-dot" style="background:#3498DB"></span>
-        <span id="score-blue">0</span>
-      </span>
-      <span class="score-item">
-        <span class="score-dot" style="background:#2ECC71"></span>
-        <span id="score-green">0</span>
-      </span>
-      <button id="reset-score-btn">↻</button>
-    </div>
-    <div id="progress-bar">
-      <div class="progress-content">
-        <div class="progress-group">
-          <span class="progress-label" style="color:#3498DB">Azul</span>
-          <span class="progress-track"><span class="progress-fill" id="progress-blue-fill"></span></span>
-          <span class="progress-val" id="progress-blue-val">0/6</span>
-        </div>
-        <div class="progress-group">
-          <span class="progress-label" style="color:#2ECC71">Verde</span>
-          <span class="progress-track"><span class="progress-fill" id="progress-green-fill"></span></span>
-          <span class="progress-val" id="progress-green-val">0/6</span>
-        </div>
-      </div>
-      <button id="toggle-progress-btn" data-visible="1">◎</button>
-    </div>
-    <div id="info-bar">
-      <div id="turn-indicator">
-        <span id="turn-dot"></span>
-        <span id="turn-text">Azul: Esquerda ↔ Direita</span>
-      </div>
-      <button id="mode-toggle" class="mode-btn active">Arrastar</button>
-    </div>
     <div id="board-container">
       <canvas id="canvas"></canvas>
     </div>
-    <div id="controls">
-      <select id="size-select">
-        <option value="5">5×5 (Fácil)</option>
-        <option value="7" selected>7×7 (Médio)</option>
-        <option value="9">9×9 (Difícil)</option>
-        <option value="11">11×11 (Expert)</option>
-      </select>
-      <button id="undo-btn">⟲</button>
-      <button id="new-game">Novo Jogo</button>
+    <div id="sidebar">
+      <div id="score-bar">
+        <span class="score-item">
+          <span class="score-dot" style="background:#3498DB"></span>
+          <span id="score-blue">0</span>
+        </span>
+        <span class="score-item">
+          <span class="score-dot" style="background:#2ECC71"></span>
+          <span id="score-green">0</span>
+        </span>
+        <button id="reset-score-btn">↻</button>
+      </div>
+      <div id="progress-bar">
+        <div class="progress-content">
+          <div class="progress-group">
+            <span class="progress-label" style="color:#3498DB">Azul</span>
+            <span class="progress-track"><span class="progress-fill" id="progress-blue-fill"></span></span>
+            <span class="progress-val" id="progress-blue-val">0/6</span>
+          </div>
+          <div class="progress-group">
+            <span class="progress-label" style="color:#2ECC71">Verde</span>
+            <span class="progress-track"><span class="progress-fill" id="progress-green-fill"></span></span>
+            <span class="progress-val" id="progress-green-val">0/6</span>
+          </div>
+        </div>
+        <button id="toggle-progress-btn" data-visible="1">◎</button>
+      </div>
+      <div id="info-bar">
+        <div id="turn-indicator">
+          <span id="turn-dot"></span>
+          <span id="turn-text">Azul:</span>
+          <button id="direction-toggle" class="dir-btn" title="Cima ↔ Baixo">Esquerda ↔ Direita</button>
+        </div>
+        <button id="mode-toggle" class="mode-btn active">Arrastar</button>
+      </div>
+      <div id="controls">
+        <select id="size-select">
+          <option value="5">5×5 (Fácil)</option>
+          <option value="7" selected>7×7 (Médio)</option>
+          <option value="9">9×9 (Difícil)</option>
+          <option value="11">11×11 (Expert)</option>
+        </select>
+        <button id="undo-btn">⟲</button>
+        <button id="new-game">Novo Jogo</button>
+      </div>
     </div>
     <div id="message"></div>
   </div>
-  <script src="js/game.js"></script>
-  <script src="js/board.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/game.js?v=2"></script>
+  <script src="js/board.js?v=2"></script>
+  <script src="js/app.js?v=2"></script>
 </body>
 </html>

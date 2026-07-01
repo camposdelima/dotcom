@@ -1,4 +1,4 @@
-function createGame(rows, cols) {
+function createGame(rows, cols, winDirection) {
   const horizontalEdges = [];
   for (let r = 0; r < rows; r++) {
     horizontalEdges.push(new Array(cols - 1).fill(null));
@@ -9,6 +9,7 @@ function createGame(rows, cols) {
   }
   return {
     rows, cols,
+    winDirection: winDirection || 'lr',
     currentPlayer: 0,
     winner: null,
     winningPath: null,
@@ -70,18 +71,29 @@ function placeEdge(game, row, col, orientation) {
 }
 
 function checkWin(game, player) {
-  const { rows, cols } = game;
+  const { rows, cols, winDirection } = game;
   const visited = new Set();
   const parent = new Map();
   const keyFn = (r, c) => r * cols + c;
   const queue = [];
 
-  for (let r = 0; r < rows; r++) {
-    queue.push([r, 0]);
-    visited.add(keyFn(r, 0));
-    parent.set(keyFn(r, 0), null);
+  if (winDirection === 'lr') {
+    for (let r = 0; r < rows; r++) {
+      queue.push([r, 0]);
+      visited.add(keyFn(r, 0));
+      parent.set(keyFn(r, 0), null);
+    }
+  } else {
+    for (let c = 0; c < cols; c++) {
+      queue.push([0, c]);
+      visited.add(keyFn(0, c));
+      parent.set(keyFn(0, c), null);
+    }
   }
-  const isEnd = (r, c) => c === cols - 1;
+
+  const isEnd = winDirection === 'lr'
+    ? (r, c) => c === cols - 1
+    : (r, c) => r === rows - 1;
 
   while (queue.length > 0) {
     const [r, c] = queue.shift();
@@ -153,7 +165,7 @@ function checkWin(game, player) {
 }
 
 function getProgress(game, player) {
-  const { rows, cols } = game;
+  const { rows, cols, winDirection } = game;
   const visited = new Set();
   const key = (r, c) => r * cols + c;
   let bestSpan = 0;
@@ -173,6 +185,7 @@ function getProgress(game, player) {
       const queue = [[sr, sc]];
       visited.add(key(sr, sc));
       let minC = sc, maxC = sc;
+      let minR = sr, maxR = sr;
 
       while (queue.length) {
         const [r, c] = queue.shift();
@@ -187,15 +200,15 @@ function getProgress(game, player) {
         }
         if (r < rows - 1 && game.verticalEdges[r][c] === player) {
           const nk = key(r + 1, c);
-          if (!visited.has(nk)) { visited.add(nk); queue.push([r + 1, c]); }
+          if (!visited.has(nk)) { visited.add(nk); queue.push([r + 1, c]); if (r + 1 > maxR) maxR = r + 1; }
         }
         if (r > 0 && game.verticalEdges[r - 1][c] === player) {
           const nk = key(r - 1, c);
-          if (!visited.has(nk)) { visited.add(nk); queue.push([r - 1, c]); }
+          if (!visited.has(nk)) { visited.add(nk); queue.push([r - 1, c]); if (r - 1 < minR) minR = r - 1; }
         }
       }
 
-      const span = maxC - minC;
+      const span = winDirection === 'lr' ? maxC - minC : maxR - minR;
       if (span > bestSpan) bestSpan = span;
     }
   }
