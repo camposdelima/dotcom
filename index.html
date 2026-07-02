@@ -45,9 +45,8 @@
         <div id="turn-indicator">
           <span id="turn-dot"></span>
           <span id="turn-text">Blue:</span>
-          <button id="direction-toggle" class="dir-btn" title="Switch to Top ↔ Bottom">⟳</button>
+          <button id="undo-btn">⟲</button>
         </div>
-        <button id="mode-toggle" class="mode-btn active">Drag</button>
       </div>
       <div id="controls">
         <select id="size-select">
@@ -56,8 +55,11 @@
           <option value="9">9×9 (Hard)</option>
           <option value="11">11×11 (Expert)</option>
         </select>
-        <button id="undo-btn">⟲</button>
-        <button id="new-game">New Game</button>
+        <div id="bottom-actions">
+          <button id="direction-toggle" class="dir-btn" title="Switch to Top ↔ Bottom">⟳</button>
+          <button id="mode-toggle" class="mode-btn active">Drag</button>
+          <button id="new-game">New Game</button>
+        </div>
       </div>
     </div>
     <div id="message"></div>

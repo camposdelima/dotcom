@@ -73,18 +73,23 @@ html, body {
     backdrop-filter: none;
   }
 
+  #bottom-actions {
+    gap: 8px;
+  }
+
   #size-select {
     min-width: auto;
     padding: 10px 12px;
   }
 
-  #undo-btn, #new-game {
-    padding: 10px 14px;
-  }
-
   #info-bar {
     padding: 0;
     min-height: 0;
+  }
+
+  #turn-indicator #undo-btn {
+    padding: 6px 12px;
+    font-size: 1.05rem;
   }
 
   .progress-content {
@@ -206,7 +211,6 @@ header h1 {
 #progress-bar.hidden .progress-content { display: none; }
 
 .mode-btn {
-  margin-left: 16px;
   padding: 5px 14px;
   border: 1px solid #333;
   background: #1a1a2e;
@@ -250,6 +254,8 @@ header h1 {
   border-color: #555;
   color: #bbb;
 }
+
+#canvas.dragging {
   cursor: grabbing;
 }
 
@@ -332,6 +338,34 @@ header h1 {
   font-weight: 600;
 }
 
+#turn-indicator #undo-btn {
+  padding: 3px 8px;
+  border: 1px solid #222;
+  border-radius: 6px;
+  background: #1a1a2e;
+  color: #ccc;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  line-height: 1.2;
+}
+
+#turn-indicator #undo-btn:hover:not(:disabled) {
+  background: #222;
+  border-color: #444;
+  color: #fff;
+}
+
+#turn-indicator #undo-btn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+#turn-indicator #undo-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
 #turn-dot {
   width: 10px;
   height: 10px;
@@ -368,8 +402,27 @@ canvas {
 
 #controls {
   display: flex;
-  gap: 8px;
-  padding: 8px 0 4px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 0 4px;
+}
+
+#bottom-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+#bottom-actions .dir-btn {
+  padding: 6px 10px;
+}
+
+#bottom-actions .mode-btn {
+  padding: 6px 12px;
+}
+
+#bottom-actions #new-game {
+  flex: 1;
 }
 
 #size-select {
@@ -394,7 +447,6 @@ canvas {
 }
 
 #new-game {
-  flex: 1;
   padding: 8px 16px;
   border: none;
   border-radius: 8px;
@@ -416,33 +468,6 @@ canvas {
   transform: translateY(0);
   opacity: 0.85;
   box-shadow: 0 1px 4px rgba(233,69,96,0.2);
-}
-
-#undo-btn {
-  padding: 8px 14px;
-  border: 1px solid #222;
-  border-radius: 8px;
-  background: #1a1a2e;
-  color: #ccc;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-#undo-btn:hover:not(:disabled) {
-  background: #222;
-  border-color: #444;
-  color: #fff;
-}
-
-#undo-btn:active:not(:disabled) {
-  transform: scale(0.92);
-}
-
-#undo-btn:disabled {
-  opacity: 0.25;
-  cursor: default;
 }
 
 #message {
