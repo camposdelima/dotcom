@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>DotCom — Jogo de Conexão</title>
+  <title>DotCom — Connection Game</title>
   <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
@@ -29,12 +29,12 @@
       <div id="progress-bar">
         <div class="progress-content">
           <div class="progress-group">
-            <span class="progress-label" style="color:#3498DB">Azul</span>
+            <span class="progress-label" style="color:#3498DB">Blue</span>
             <span class="progress-track"><span class="progress-fill" id="progress-blue-fill"></span></span>
             <span class="progress-val" id="progress-blue-val">0/6</span>
           </div>
           <div class="progress-group">
-            <span class="progress-label" style="color:#2ECC71">Verde</span>
+            <span class="progress-label" style="color:#2ECC71">Green</span>
             <span class="progress-track"><span class="progress-fill" id="progress-green-fill"></span></span>
             <span class="progress-val" id="progress-green-val">0/6</span>
           </div>
@@ -44,20 +44,20 @@
       <div id="info-bar">
         <div id="turn-indicator">
           <span id="turn-dot"></span>
-          <span id="turn-text">Azul:</span>
-          <button id="direction-toggle" class="dir-btn" title="Cima ↔ Baixo">Esquerda ↔ Direita</button>
+          <span id="turn-text">Blue:</span>
+          <button id="direction-toggle" class="dir-btn" title="Switch to Top ↔ Bottom">⟳</button>
         </div>
-        <button id="mode-toggle" class="mode-btn active">Arrastar</button>
+        <button id="mode-toggle" class="mode-btn active">Drag</button>
       </div>
       <div id="controls">
         <select id="size-select">
-          <option value="5">5×5 (Fácil)</option>
-          <option value="7" selected>7×7 (Médio)</option>
-          <option value="9">9×9 (Difícil)</option>
+          <option value="5">5×5 (Easy)</option>
+          <option value="7" selected>7×7 (Medium)</option>
+          <option value="9">9×9 (Hard)</option>
           <option value="11">11×11 (Expert)</option>
         </select>
         <button id="undo-btn">⟲</button>
-        <button id="new-game">Novo Jogo</button>
+        <button id="new-game">New Game</button>
       </div>
     </div>
     <div id="message"></div>

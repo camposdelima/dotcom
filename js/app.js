@@ -25,8 +25,8 @@ let currentPreviewEdge = null;
 let dragEventHandlers = null;
 
 const DIRECTION_LABELS = {
-  lr: { name: 'Esquerda ↔ Direita', short: '↔', bar: 'lr' },
-  tb: { name: 'Cima ↔ Baixo', short: '↕', bar: 'tb' },
+  lr: { name: 'Left ↔ Right', short: '↔', bar: 'lr' },
+  tb: { name: 'Top ↔ Bottom', short: '↕', bar: 'tb' },
 };
 
 function resizeCanvas() {
@@ -69,13 +69,13 @@ function updateUI() {
   const dirLabel = DIRECTION_LABELS[winDirection].name;
 
   if (game.winner !== null) {
-    const name = game.winner === 0 ? 'Azul' : 'Verde';
-    turnText.textContent = `${name} venceu!`;
+    const name = game.winner === 0 ? 'Blue' : 'Green';
+    turnText.textContent = `${name} wins!`;
     turnDot.style.background = game.winner === 0 ? '#3498DB' : '#2ECC71';
     turnDot.style.boxShadow = `0 0 10px ${game.winner === 0 ? '#3498DB' : '#2ECC71'}`;
-    messageEl.textContent = `${name} conectou ${dirLabel}!`;
+    messageEl.textContent = `${name} connected ${dirLabel}!`;
   } else {
-    const name = game.currentPlayer === 0 ? 'Azul' : 'Verde';
+    const name = game.currentPlayer === 0 ? 'Blue' : 'Green';
     turnText.textContent = `${name}:`;
     turnDot.style.background = game.currentPlayer === 0 ? '#3498DB' : '#2ECC71';
     turnDot.style.boxShadow = `0 0 8px ${game.currentPlayer === 0 ? '#3498DB' : '#2ECC71'}`;
@@ -88,8 +88,8 @@ function updateUI() {
 
 function updateDirectionBtn() {
   const btn = document.getElementById('direction-toggle');
-  btn.textContent = DIRECTION_LABELS[winDirection].name;
-  btn.title = winDirection === 'lr' ? 'Cima ↔ Baixo' : 'Esquerda ↔ Direita';
+  btn.textContent = '⟳';
+  btn.title = winDirection === 'lr' ? 'Switch to Top ↔ Bottom' : 'Switch to Left ↔ Right';
 }
 
 function handleBoardInteraction(e) {
@@ -263,12 +263,12 @@ function toggleDragMode() {
   
   if (dragModeEnabled) {
     btn.classList.add('active');
-    btn.textContent = 'Arrastar';
+    btn.textContent = 'Drag';
     canvas.classList.remove('dragging');
     canvas.classList.add('grab');
   } else {
     btn.classList.remove('active');
-    btn.textContent = 'Clique';
+    btn.textContent = 'Click';
     canvas.classList.remove('dragging', 'grab');
     cleanupDragEventHandlers();
   }
@@ -293,7 +293,7 @@ function loadDragMode() {
 function applyDragVisuals() {
   const btn = document.getElementById('mode-toggle');
   btn.classList.add('active');
-  btn.textContent = 'Arrastar';
+  btn.textContent = 'Drag';
   canvas.classList.remove('dragging');
   canvas.classList.add('grab');
   updateModeIndicator();
@@ -302,7 +302,7 @@ function applyDragVisuals() {
 function applyClickVisuals() {
   const btn = document.getElementById('mode-toggle');
   btn.classList.remove('active');
-  btn.textContent = 'Clique';
+  btn.textContent = 'Click';
   canvas.classList.remove('dragging', 'grab');
   cleanupDragEventHandlers();
   updateModeIndicator();
@@ -330,10 +330,17 @@ function resetDragState() {
 }
 
 function toggleWinDirection() {
-  winDirection = winDirection === 'lr' ? 'tb' : 'lr';
+  const newDir = winDirection === 'lr' ? 'tb' : 'lr';
+  winDirection = newDir;
+  game.winDirection = newDir;
   localStorage.setItem('winDirection', winDirection);
-  initGame(parseInt(sizeSelect.value));
+  canvas.classList.add('rotating');
+  rotateGameState(game);
+  drawBoard(ctx, canvas, game);
+  updateUI();
+  updateDirectionBtn();
   resetDragState();
+  setTimeout(() => canvas.classList.remove('rotating'), 250);
 }
 
 function loadWinDirection() {

@@ -216,6 +216,52 @@ function getProgress(game, player) {
   return bestSpan;
 }
 
+function rotateGameState(game) {
+  const N = game.rows;
+  const newH = [];
+  const newV = [];
+  for (let r = 0; r < N; r++) newH.push(new Array(N - 1).fill(null));
+  for (let r = 0; r < N - 1; r++) newV.push(new Array(N).fill(null));
+
+  for (let r = 0; r < N; r++) {
+    for (let c = 0; c < N - 1; c++) {
+      if (game.horizontalEdges[r][c] !== null) {
+        newV[c][N - 1 - r] = game.horizontalEdges[r][c];
+      }
+    }
+  }
+  for (let r = 0; r < N - 1; r++) {
+    for (let c = 0; c < N; c++) {
+      if (game.verticalEdges[r][c] !== null) {
+        newH[c][N - 2 - r] = game.verticalEdges[r][c];
+      }
+    }
+  }
+
+  game.horizontalEdges = newH;
+  game.verticalEdges = newV;
+
+  for (const move of game.moves) {
+    if (move.orientation === 'h') {
+      const newRow = move.col;
+      const newCol = N - 1 - move.row;
+      move.orientation = 'v';
+      move.row = newRow;
+      move.col = newCol;
+    } else {
+      const newRow = move.col;
+      const newCol = N - 2 - move.row;
+      move.orientation = 'h';
+      move.row = newRow;
+      move.col = newCol;
+    }
+  }
+
+  game.winner = null;
+  game.winningPath = null;
+  game.winningEdges = null;
+}
+
 function undoMove(game) {
   if (game.moves.length === 0) return false;
 

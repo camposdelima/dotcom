@@ -8,8 +8,6 @@ const COLORS = {
   dot: '#1a1a2e',
   dotBorder: '#444',
   bg: '#F4F6F7',
-  sideBlue: 'rgba(52,152,219,0.15)',
-  sideGreen: 'rgba(46,204,113,0.15)',
 };
 
 function computeLayout(canvas, game) {
@@ -45,8 +43,8 @@ function drawBoard(ctx, canvas, game) {
   ctx.fillStyle = COLORS.bg;
   ctx.fillRect(0, 0, w, h);
 
-  const barW = 4;
-  const barR = 2;
+  const barW = 12;
+  const barR = 4;
   const gridTop = oy;
   const gridLeft = ox;
   const gridRight = ox + cell * (game.cols - 1);
@@ -54,27 +52,33 @@ function drawBoard(ctx, canvas, game) {
   const barH = gridBottom - gridTop;
   const gridW = gridRight - gridLeft;
 
-  function drawSideBars(color, offset) {
-    ctx.fillStyle = color;
-    if (game.winDirection === 'lr') {
-      ctx.beginPath();
-      ctx.roundRect(gridLeft - 8 + offset, gridTop, barW, barH, barR);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.roundRect(gridRight + 4 + offset, gridTop, barW, barH, barR);
-      ctx.fill();
-    } else {
-      ctx.beginPath();
-      ctx.roundRect(gridLeft, gridTop - 8 + offset, gridW, barW, barR);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.roundRect(gridLeft, gridBottom + 4 + offset, gridW, barW, barR);
-      ctx.fill();
-    }
+  if (game.winDirection === 'lr') {
+    ctx.save();
+    ctx.shadowColor = 'rgba(241,196,15,0.5)';
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = '#F1C40F';
+    ctx.beginPath(); ctx.roundRect(gridLeft - 10, gridTop, barW, barH, barR); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(gridRight + 2, gridTop, barW, barH, barR); ctx.fill();
+    ctx.fillStyle = '#1a1a2e';
+    const cy = (gridTop + gridBottom) / 2;
+    const s = cell * 0.06;
+    ctx.beginPath(); ctx.moveTo(gridLeft - 5 + s, cy - s); ctx.lineTo(gridLeft - 5 - s, cy); ctx.lineTo(gridLeft - 5 + s, cy + s); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(gridRight + 7 - s, cy - s); ctx.lineTo(gridRight + 7 + s, cy); ctx.lineTo(gridRight + 7 - s, cy + s); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  } else {
+    ctx.save();
+    ctx.shadowColor = 'rgba(241,196,15,0.5)';
+    ctx.shadowBlur = 8;
+    ctx.fillStyle = '#F1C40F';
+    ctx.beginPath(); ctx.roundRect(gridLeft, gridTop - 10, gridW, barW, barR); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(gridLeft, gridBottom + 2, gridW, barW, barR); ctx.fill();
+    ctx.fillStyle = '#1a1a2e';
+    const cx = (gridLeft + gridRight) / 2;
+    const s = cell * 0.06;
+    ctx.beginPath(); ctx.moveTo(cx - s, gridTop - 5 + s); ctx.lineTo(cx, gridTop - 5 - s); ctx.lineTo(cx + s, gridTop - 5 + s); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx - s, gridBottom + 7 - s); ctx.lineTo(cx, gridBottom + 7 + s); ctx.lineTo(cx + s, gridBottom + 7 - s); ctx.closePath(); ctx.fill();
+    ctx.restore();
   }
-
-  drawSideBars(COLORS.sideBlue, 0);
-  drawSideBars(COLORS.sideGreen, 5);
 
   function drawEdge(r, c, orient, color, width) {
     const p1 = pointPos(layout, r, c);
