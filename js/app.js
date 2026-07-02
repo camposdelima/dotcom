@@ -18,6 +18,7 @@ let game = null;
 let scoreBlue = 0;
 let scoreGreen = 0;
 let winDirection = 'lr';
+let startingPlayer = 0;
 
 let dragModeEnabled = true;
 let dragStartPoint = null;
@@ -39,7 +40,8 @@ function resizeCanvas() {
 }
 
 function initGame(size) {
-  game = createGame(size, size, winDirection);
+  game = createGame(size, size, winDirection, startingPlayer);
+  startingPlayer = 1 - startingPlayer;
   messageEl.textContent = '';
   undoBtn.disabled = true;
   updateUI();
@@ -76,7 +78,8 @@ function updateUI() {
     messageEl.textContent = `${name} connected ${dirLabel}!`;
   } else {
     const name = game.currentPlayer === 0 ? 'Blue' : 'Green';
-    turnText.textContent = `${name}:`;
+    const label = game.moves.length === 0 ? ' (first)' : ':';
+    turnText.textContent = `${name}${label}`;
     turnDot.style.background = game.currentPlayer === 0 ? '#3498DB' : '#2ECC71';
     turnDot.style.boxShadow = `0 0 8px ${game.currentPlayer === 0 ? '#3498DB' : '#2ECC71'}`;
     messageEl.textContent = '';
@@ -366,6 +369,7 @@ document.getElementById('direction-toggle').addEventListener('click', toggleWinD
 resetScoreBtn.addEventListener('click', () => {
   scoreBlue = 0;
   scoreGreen = 0;
+  startingPlayer = 0;
   updateScoreDisplay();
   resetDragState();
 });

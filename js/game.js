@@ -1,4 +1,4 @@
-function createGame(rows, cols, winDirection) {
+function createGame(rows, cols, winDirection, startingPlayer) {
   const horizontalEdges = [];
   for (let r = 0; r < rows; r++) {
     horizontalEdges.push(new Array(cols - 1).fill(null));
@@ -10,7 +10,7 @@ function createGame(rows, cols, winDirection) {
   return {
     rows, cols,
     winDirection: winDirection || 'lr',
-    currentPlayer: 0,
+    currentPlayer: startingPlayer || 0,
     winner: null,
     winningPath: null,
     winningEdges: null,
@@ -260,6 +260,7 @@ function rotateGameState(game) {
   game.winner = null;
   game.winningPath = null;
   game.winningEdges = null;
+  game.scoredBy = -1;
 }
 
 function undoMove(game) {
