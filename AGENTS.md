@@ -1,132 +1,133 @@
-# DotCom — Contexto do Projeto
+# DotCom — Project Context
 
-## Descrição
+## Description
 
-Jogo de conexão para dois jogadores no mesmo dispositivo (mobile/desktop).  
-Cada jogador traça linhas entre pontos em uma grade quadrada. **Ambos** tentam conectar **Esquerda ↔ Direita**. Quem completar a conexão primeiro vence.
+Two-player connection game on the same device (mobile/desktop).  
+Each player draws lines between points on a square grid. **Both** try to connect **Left ↔ Right** (or Top ↔ Bottom). Whoever completes a connection first wins.
 
-Inspirado no **Bridg-It** (Game of Gale / Shannon Switching Game), de David Gale e John Nash.
+Inspired by **Bridg-It** (Game of Gale / Shannon Switching Game), by David Gale and John Nash.
 
 ## Stack
 
-- HTML5 + CSS3 + JavaScript vanilla (sem frameworks)
-- Canvas 2D para renderização do tabuleiro
-- Mobile-first, responsivo, eventos de toque
+- HTML5 + CSS3 + JavaScript vanilla (no frameworks)
+- Canvas 2D for board rendering
+- Mobile-first, responsive, touch events
 
-## Estrutura
+## Structure
 
 ```
 dotcom/
-├── index.html          # Página principal
-├── AGENTS.md           # Contexto para agentes (este arquivo)
-├── README.md           # Documentação do projeto
+├── index.html          # Main page
+├── AGENTS.md           # Agent context (this file)
+├── README.md           # Project documentation
 ├── css/
-│   └── style.css       # Estilos dark theme, responsivo
+│   └── style.css       # Dark theme, responsive
 └── js/
-    ├── game.js         # Estado do jogo, regras, detecção de vitória (BFS)
-    ├── board.js        # Renderização Canvas, detecção de clique/toque em arestas
-    └── app.js          # Inicialização, eventos, atualização de UI
+    ├── game.js         # Game state, rules, win detection (BFS)
+    ├── board.js        # Canvas rendering, edge click/touch detection
+    └── app.js          # Initialization, events, UI updates
 ```
 
-## Regras do Jogo
+## Game Rules
 
-1. Tabuleiro: grade de N×N pontos (padrão 7×7)
-2. Azul (player 0) começa, alternando a cada jogada
-3. Na sua vez, toque/clique em uma aresta (linha entre dois pontos adjacentes) para marcá-la com sua cor
-4. Arestas já ocupadas não podem ser alteradas
-5. Se um jogador controla **Norte e Sul** de um mesmo ponto, o oponente não pode usar **Leste ou Oeste** desse ponto (bloqueio cruzado). O mesmo vale se controlar **Leste e Oeste** — o oponente fica bloqueado de usar **Norte ou Sul** daquele ponto
-6. **Qualquer jogador vence** ao formar um caminho contínuo de suas arestas da coluna mais à esquerda até a mais à direita
-7. O caminho vencedor é destacado com brilho
-8. Undo disponível (desfaz movimento, mantém histórico da partida)
-9. Placar de vitórias entre as partidas, com botão para reset
+1. Board: N×N grid of points (default 7×7)
+2. Blue (player 0) starts by default, alternating each match
+3. On your turn, tap/click an edge (line between two adjacent points) to mark it with your color
+4. Occupied edges cannot be changed
+5. If a player controls **North and South** of a point, the opponent cannot use **East or West** of that point (cross-block). Same if controlling **East and West** — the opponent is blocked from using **North or South** of that point
+6. **Any player wins** by forming a continuous path of their edges from the leftmost column to the rightmost (or top to bottom if rotated)
+7. The winning path is highlighted with a glow
+8. Undo available (reverts move, keeps match history)
+9. Scoreboard persists across matches, with a reset button
 
-## Arquitetura
+## Architecture
 
 ### game.js
-- `createGame(rows, cols)` — estado imutável do jogo
-- `placeEdge(game, row, col, orientation)` — valida e marca aresta, verifica vitória, alterna turno
-- `checkWin(game, player)` — BFS a partir da borda esquerda, retorna o caminho vencedor (pontos + arestas)
-- `undoMove(game)` — desfaz último movimento, restaura aresta e turno, limpa estado de vitória
+- `createGame(rows, cols, winDirection, startingPlayer)` — creates game state
+- `placeEdge(game, row, col, orientation)` — validates and places an edge, checks win, toggles turn
+- `checkWin(game, player)` — BFS from the left/top edge, returns winning path (points + edges)
+- `rotateGameState(game)` — rotates all edges and moves 90° clockwise
+- `getProgress(game, player)` — calculates progress span for each player
+- `undoMove(game)` — reverts last move, restores edge and turn, clears win state
 
 ### board.js
-- `computeLayout(canvas, game)` — geometria do grid (padding, cellSize, offset)
-- `drawBoard(ctx, canvas, game)` — renderiza fundo, indicadores laterais, arestas, dots, caminho vencedor
-- `findEdgeAt(canvas, game, px, py)` — encontra a aresta vazia mais próxima de um ponto (clique/toque)
-- `distToSegment(px, py, x1, y1, x2, y2)` — distância de ponto a segmento de reta
+- `computeLayout(canvas, game)` — grid geometry (padding, cellSize, offset)
+- `drawBoard(ctx, canvas, game)` — renders background, side indicators, edges, dots, winning path
+- `findEdgeAt(canvas, game, px, py)` — finds nearest empty edge to a click/touch point
+- `distToSegment(px, py, x1, y1, x2, y2)` — distance from point to line segment
+- `findNearestPoint(canvas, x, y)` — finds nearest dot point
+- `drawBoardWithPreview(ctx, canvas, game, startPoint, previewEdge)` — renders drag preview
 
 ### app.js
-- Inicializa jogo, redimensiona canvas (responsivo), orquestra eventos de clique/toque
-- Atualiza UI: indicador de turno, mensagem de vitória, placar
-- Controla undo e reset de placar
+- Initializes game, resizes canvas (responsive), orchestrates click/touch events
+- Updates UI: turn indicator, win message, scoreboard
+- Controls undo, score reset, direction toggle, drag/click mode toggle
 
-## Tamanhos Disponíveis
+## Available Sizes
 
-| Grid  | Dificuldade | Arestas |
-|-------|-------------|---------|
-| 5×5   | Fácil       | 40      |
-| 7×7   | Médio       | 84      |
-| 9×9   | Difícil     | 144     |
-| 11×11 | Expert      | 220     |
+| Grid  | Difficulty | Edges |
+|-------|-----------|-------|
+| 5×5   | Easy      | 40    |
+| 7×7   | Medium    | 84    |
+| 9×9   | Hard      | 144   |
+| 11×11 | Expert    | 220   |
 
-## Como Rodar
+## How to Run
 
-Abra o `index.html` em qualquer navegador moderno.  
-No celular, sirva via HTTP local (ex: `python -m http.server 8080`) ou use uma extensão Live Server no VS Code.
+Open `index.html` in any modern browser.  
+On mobile, serve via local HTTP (e.g. `python -m http.server 8080`) or use a Live Server extension in VS Code.
 
-## Testes com Playwright
+## Playwright Testing
 
-Usamos as ferramentas Playwright MCP para testes manuais automatizados.
+We use Playwright MCP tools for automated manual testing.
 
-### Servidor HTTP (necessário)
+### HTTP Server (required)
 
 ```powershell
-# Iniciar em background (executar uma vez)
+# Start in background (run once)
 powershell "Start-Process -WindowStyle Hidden python '-m http.server 8080'"
 
-# OU manualmente em terminal separado
+# OR manually in a separate terminal
 python -m http.server 8080
 ```
 
-### Cache do navegador
+### Browser Cache
 
-O navegador frequentemente serve `app.js` velho do cache. Sempre use cache buster:
+The browser often serves stale `app.js` from cache. Always use a cache buster:
 
 ```js
 await page.goto('http://localhost:8080/?t=' + Date.now(), { waitUntil: 'networkidle' });
 ```
 
-### Padrão para testar drag mode
+### Checking game state
 
-O `game` é declarado com `let` (não `var`), então **não** está em `window.game`. Para verificar estado do jogo, use o DOM:
+`game` is declared with `let` (not `var`), so it is **not** on `window.game`. Use the DOM to verify state:
 
 ```js
-// Verificar se um movimento foi feito (undo habilitado, turno mudou)
 const snap = await page.evaluate(() => {
   const undoBtn = document.getElementById('undo-btn');
   return {
     undoDisabled: undoBtn?.disabled,
     turn: document.querySelector('#info-bar span')?.textContent,
-    progress: document.querySelector('#score-0 .progress-fill')?.textContent
   };
 });
 ```
 
-Para obter coordenadas dos pontos no canvas:
+To get canvas point coordinates:
 
 ```js
 const rect = await page.locator('#canvas').boundingBox();
 const coords = await page.evaluate(() => {
   const c = document.getElementById('canvas');
   const layout = computeLayout(c, game);
-  const p = pointPos(layout, 0, 0); // { x, y } dentro do canvas
+  const p = pointPos(layout, 0, 0);
   return { p, cell: layout.cell, ox: layout.ox, oy: layout.oy, w: c.width };
 });
-// Coordenadas na página:
 const pageX = rect.x + coords.p.x;
 const pageY = rect.y + coords.p.y;
 ```
 
-### Simular drag (modo Arrastar)
+### Simulating drag
 
 ```js
 await page.mouse.move(startPageX, startPageY);
@@ -138,15 +139,14 @@ await page.mouse.up();
 await page.waitForTimeout(300);
 ```
 
-O `steps` faz o mouse passar por posições intermediárias, essencial para que o `handleDragMove` encontre a aresta durante o arrasto.
+The `steps` parameter makes the mouse pass through intermediate positions, essential for `handleDragMove` to find the edge during drag.
 
-## Próximos Passos Possíveis
+## Possible Next Steps
 
-- [ ] Modo contra IA (algoritmo minimax / busca em grafo)
-- [ ] Destaque no hover da aresta (desktop)
-- [ ] Suporte a Retina/HiDPI (devicePixelRatio)
-- [x] Botão "Desfazer" (undo)
-- [x] Placar de vitórias com reset
-- [ ] Tela de vitória com animação
+- [ ] AI opponent (minimax / graph search)
+- [ ] Edge hover highlight (desktop)
+- [ ] Retina/HiDPI support (devicePixelRatio)
+- [x] Undo button
+- [x] Scoreboard with reset
+- [ ] Win animation screen
 - [ ] PWA (manifest.json + service worker)
-- [ ] Tradução EN

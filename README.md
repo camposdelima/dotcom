@@ -1,36 +1,40 @@
-# DotCom — Jogo de Conexão
+# DotCom — Connection Game
 
-Dois jogadores, um dispositivo. Conecte seus lados antes do oponente!
+Two players, one device. Connect your sides before your opponent!
 
-Ambos conectam **Esquerda ↔ Direita**
+Both connect **Left ↔ Right** (or **Top ↔ Bottom**)
 
-Cada jogador traça linhas entre pontos adjacentes na grade. O primeiro a formar um caminho contínuo de uma borda à outra vence.
+Each player draws lines between adjacent points on the grid. The first to form a continuous path from one edge to the other wins.
 
-## Como Jogar
+## How to Play
 
-1. Abra `index.html` no navegador (celular ou desktop)
-2. Selecione o tamanho do tabuleiro (5×5 a 11×11)
-3. Toque/clique em uma linha entre dois pontos para traçá-la
-4. Alterne com o adversário no mesmo dispositivo
-5. Vença conectando seus lados!
+1. Open `index.html` in your browser (mobile or desktop)
+2. Select the board size (5×5 to 11×11)
+3. Tap/click a line between two points to draw it
+4. Take turns with your opponent on the same device
+5. Win by connecting your sides!
 
-## Executar
+## Run
 
 ```
 python -m http.server 8080
 ```
 
-Depois acesse `http://localhost:8080` no navegador.
+Then open `http://localhost:8080` in your browser.
 
-Ou simplesmente abra o `index.html` direto no navegador (recomendado usar Live Server no VS Code).
+Or just open `index.html` directly (Live Server recommended in VS Code).
 
-## Tecnologia
+## Tech
 
-HTML5 + CSS3 + JavaScript vanilla. Sem dependências externas.
+HTML5 + CSS3 + JavaScript vanilla. No external dependencies.
 
-## Funcionalidades
+## Features
 
-- Tabuleiro ajustável (5×5 a 11×11)
-- Undo a qualquer momento (inclusive após vitória)
-- Placar de vitórias persistente entre partidas
-- Botão para resetar o placar
+- Adjustable board (5×5 to 11×11)
+- Undo anytime (even after a win)
+- Persistent scoreboard across matches
+- Reset score button
+- Rotate board 90° (toggles win direction)
+- Drag or click mode
+- Alternating starting player
+- Cross-blocking rule (North/South blocks East/West and vice-versa)
