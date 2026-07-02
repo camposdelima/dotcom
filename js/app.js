@@ -73,6 +73,7 @@ function updateUI() {
   if (game.winner !== null) {
     const name = game.winner === 0 ? 'Blue' : 'Green';
     turnText.textContent = `${name} wins!`;
+    turnText.style.cursor = 'default';
     turnDot.style.background = game.winner === 0 ? '#3498DB' : '#2ECC71';
     turnDot.style.boxShadow = `0 0 10px ${game.winner === 0 ? '#3498DB' : '#2ECC71'}`;
     messageEl.textContent = `${name} connected ${dirLabel}!`;
@@ -80,6 +81,7 @@ function updateUI() {
     const name = game.currentPlayer === 0 ? 'Blue' : 'Green';
     const label = game.moves.length === 0 ? ' (first)' : ':';
     turnText.textContent = `${name}${label}`;
+    turnText.style.cursor = game.moves.length === 0 ? 'pointer' : 'default';
     turnDot.style.background = game.currentPlayer === 0 ? '#3498DB' : '#2ECC71';
     turnDot.style.boxShadow = `0 0 8px ${game.currentPlayer === 0 ? '#3498DB' : '#2ECC71'}`;
     messageEl.textContent = '';
@@ -371,6 +373,14 @@ resetScoreBtn.addEventListener('click', () => {
   scoreGreen = 0;
   startingPlayer = 0;
   updateScoreDisplay();
+  resetDragState();
+});
+
+turnText.addEventListener('click', () => {
+  if (!game || game.moves.length !== 0 || game.winner !== null) return;
+  game.currentPlayer = 1 - game.currentPlayer;
+  startingPlayer = game.currentPlayer;
+  updateUI();
   resetDragState();
 });
 
