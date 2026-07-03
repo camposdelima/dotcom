@@ -53,55 +53,6 @@ function hasAdjacentEdgeForPlayer(game, move, player) {
   return false;
 }
 
-function getSmartRolloutMove(game) {
-  const moves = getLegalMoves(game);
-  if (moves.length <= 1) return moves[0] || null;
-
-  const player = game.currentPlayer;
-  const opponent = 1 - player;
-
-  for (const move of moves) {
-    const test = cloneGame(game);
-    placeEdge(test, move.row, move.col, move.orientation);
-    if (test.winner === player) return move;
-  }
-
-  const selfAdj = [];
-  const oppAdj = [];
-  const rest = [];
-
-  for (const move of moves) {
-    const adjSelf = hasAdjacentEdgeForPlayer(game, move, player);
-    const adjOpp = hasAdjacentEdgeForPlayer(game, move, opponent);
-    if (adjSelf) selfAdj.push(move);
-    else if (adjOpp) oppAdj.push(move);
-    else rest.push(move);
-  }
-
-  const r = Math.random();
-  if (selfAdj.length > 0 && r < 0.45) {
-    return selfAdj[Math.floor(Math.random() * selfAdj.length)];
-  }
-  if (oppAdj.length > 0 && r < 0.70) {
-    return oppAdj[Math.floor(Math.random() * oppAdj.length)];
-  }
-  if (rest.length > 0) {
-    return rest[Math.floor(Math.random() * rest.length)];
-  }
-  return moves[Math.floor(Math.random() * moves.length)];
-}
-
-function simulate(game) {
-  const cloned = cloneGame(game);
-  let limit = 10000;
-  while (cloned.winner === null && limit-- > 0) {
-    const move = getSmartRolloutMove(cloned);
-    if (!move) break;
-    placeEdge(cloned, move.row, move.col, move.orientation);
-  }
-  return cloned.winner;
-}
-
 function evaluatePosition(game, player) {
   if (game.winner === player) return 1;
   if (game.winner !== null) return 0;
@@ -113,7 +64,19 @@ function evaluatePosition(game, player) {
   const oppProgress = getProgress(game, 1 - player);
 
   const diff = (myProgress - oppProgress) / maxProgress;
-  return Math.max(0, Math.min(1, 0.5 + diff * 0.5));
+  let score = 0.5 + diff * 0.5;
+
+  const myRatio = myProgress / maxProgress;
+  const oppRatio = oppProgress / maxProgress;
+
+  if (myRatio > 0.6) {
+    score += 0.15 * (myRatio - 0.6) / 0.4;
+  }
+  if (oppRatio > 0.6) {
+    score -= 0.15 * (oppRatio - 0.6) / 0.4;
+  }
+
+  return Math.max(0, Math.min(1, score));
 }
 
 class MCTSNode {
@@ -137,8 +100,9 @@ class MCTSNode {
   selectChild(aiPlayer) {
     const isAITurn = this.playerToMove === aiPlayer;
     return this.children.reduce((best, c) => {
-      const score = c.ucb1Score(aiPlayer);
-      const better = isAITurn ? score > best.ucb1Score(aiPlayer) : score < best.ucb1Score(aiPlayer);
+      const score = c.ucb1Score();
+      const bestScore = best.ucb1Score();
+      const better = isAITurn ? score > bestScore : score < bestScore;
       return better ? c : best;
     });
   }
@@ -176,6 +140,11 @@ function runMCTSOnce(rootNode, game, aiPlayer) {
   if (cloned.winner === null) {
     if (node.untriedMoves === null) {
       node.untriedMoves = getLegalMoves(cloned);
+      node.untriedMoves.sort((a, b) => {
+        const aAdj = hasAdjacentEdgeForPlayer(cloned, a, node.playerToMove) ? 1 : 0;
+        const bAdj = hasAdjacentEdgeForPlayer(cloned, b, node.playerToMove) ? 1 : 0;
+        return bAdj - aAdj;
+      });
       node.untriedMoves = node.untriedMoves.filter(m =>
         !node.children.some(c =>
           c.move.row === m.row && c.move.col === m.col && c.move.orientation === m.orientation
@@ -199,13 +168,37 @@ function runMCTSOnce(rootNode, game, aiPlayer) {
   }
 }
 
-function getIterations(difficulty) {
-  const counts = { easy: 2000, medium: 6500, hard: 7500 };
-  return counts[difficulty] || 2000;
+function getIterations(difficulty, game) {
+  const totalEdges = game.rows * (game.cols - 1) + (game.rows - 1) * game.cols;
+  const baseCounts = { easy: 8000, medium: 25000, hard: 65000 };
+  const base = baseCounts[difficulty] || 8000;
+  return Math.round(base * Math.sqrt(totalEdges / 84));
 }
 
 function scheduleAIMove(game, aiPlayer, difficulty, onComplete) {
-  const total = getIterations(difficulty);
+  const legalMoves = getLegalMoves(game);
+
+  for (const move of legalMoves) {
+    const test = cloneGame(game);
+    placeEdge(test, move.row, move.col, move.orientation);
+    if (test.winner === aiPlayer) {
+      onComplete(move);
+      return;
+    }
+  }
+
+  const oppPlayer = 1 - aiPlayer;
+  for (const move of legalMoves) {
+    const test = cloneGame(game);
+    test.currentPlayer = oppPlayer;
+    placeEdge(test, move.row, move.col, move.orientation);
+    if (test.winner === oppPlayer) {
+      onComplete(move);
+      return;
+    }
+  }
+
+  const total = getIterations(difficulty, game);
   const rootNode = new MCTSNode(null, game.currentPlayer);
   let completed = 0;
 

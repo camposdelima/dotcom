@@ -68,11 +68,12 @@ dotcom/
 ### ai.js
 - `cloneGame(game)` — deep clone for MCTS simulation
 - `getLegalMoves(game)` — all currently legal (empty + allowed) edges
-- `simulate(game)` — random rollout to completion, returns winner
-- `MCTSNode` class — UCB1 tree with selection/expansion/evaluation/backprop
-- `runMCTSOnce(rootNode, game, aiPlayer)` — single MCTS iteration
-- `evaluatePosition(game, player)` — heuristic evaluation via `getProgress` (replaces random rollouts)
-- `scheduleAIMove(game, aiPlayer, difficulty, onComplete)` — chunked MCTS (50ms chunks via setTimeout) to keep UI responsive; 2000/6500/7500 iterations for Easy/Medium/Hard (fixed, board-independent)
+- `hasAdjacentEdgeForPlayer(game, move, player)` — checks if move is adjacent to a player's edge
+- `MCTSNode` class — UCB1 tree with selection/expansion/evaluation/backprop; MIN/MAX selection per player turn
+- `runMCTSOnce(rootNode, game, aiPlayer)` — single MCTS iteration with heuristic evaluation
+- `evaluatePosition(game, player)` — heuristic via `getProgress` with late-game urgency boost
+- `getIterations(difficulty, game)` — board-adaptive iteration count (scaled by sqrt(edges/84))
+- `scheduleAIMove(game, aiPlayer, difficulty, onComplete)` — chunked MCTS (50ms chunks via setTimeout); 1-ply lookahead for immediate win/block, then MCTS with 8000/25000/65000 base iterations for Easy/Medium/Hard (board-adaptive)
 
 ## Available Sizes
 
