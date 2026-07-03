@@ -20,6 +20,12 @@ let scoreGreen = 0;
 let winDirection = 'lr';
 let startingPlayer = 0;
 
+let aiEnabled = false;
+let humanPlayer = 0;
+let aiPlayer = 1;
+let aiDifficulty = 'medium';
+let aiThinking = false;
+
 let dragModeEnabled = true;
 let dragStartPoint = null;
 let currentPreviewEdge = null;
@@ -47,6 +53,10 @@ function initGame(size) {
   updateUI();
   resizeCanvas();
   updateDirectionBtn();
+
+  if (aiEnabled && game.currentPlayer === aiPlayer) {
+    setTimeout(() => startAIThinking(), 100);
+  }
 }
 
 function updateScoreDisplay() {
@@ -67,7 +77,7 @@ function updateProgressDisplay() {
 }
 
 function updateUI() {
-  undoBtn.disabled = game.moves.length === 0;
+  undoBtn.disabled = game.moves.length === 0 || aiThinking;
   const dirLabel = DIRECTION_LABELS[winDirection].name;
 
   if (game.winner !== null) {
@@ -97,8 +107,46 @@ function updateDirectionBtn() {
   btn.title = winDirection === 'lr' ? 'Switch to Top ↔ Bottom' : 'Switch to Left ↔ Right';
 }
 
+function afterPlaceEdge() {
+  drawBoard(ctx, canvas, game);
+  updateUI();
+
+  if (game.winner !== null) {
+    if (game.scoredBy === -1) {
+      game.scoredBy = game.winner;
+      if (game.winner === 0) scoreBlue++;
+      else scoreGreen++;
+    } else if (game.scoredBy !== game.winner) {
+      if (game.scoredBy === 0) scoreBlue--;
+      else scoreGreen--;
+      game.scoredBy = game.winner;
+      if (game.winner === 0) scoreBlue++;
+      else scoreGreen++;
+    }
+    updateScoreDisplay();
+  }
+
+  if (aiEnabled && !aiThinking && game.winner === null && game.currentPlayer === aiPlayer) {
+    startAIThinking();
+  }
+}
+
+function startAIThinking() {
+  aiThinking = true;
+  undoBtn.disabled = true;
+  messageEl.textContent = '🤖 AI thinking...';
+
+  scheduleAIMove(game, aiPlayer, aiDifficulty, (move) => {
+    if (move) {
+      placeEdge(game, move.row, move.col, move.orientation);
+    }
+    aiThinking = false;
+    afterPlaceEdge();
+  });
+}
+
 function handleBoardInteraction(e) {
-  if (game.winner !== null || dragModeEnabled) return;
+  if (game.winner !== null || dragModeEnabled || aiThinking) return;
 
   const rect = canvas.getBoundingClientRect();
   let cx, cy;
@@ -117,21 +165,7 @@ function handleBoardInteraction(e) {
   if (!edge) return;
 
   placeEdge(game, edge.row, edge.col, edge.orientation);
-  if (game.winner !== null) {
-    if (game.scoredBy === -1) {
-      game.scoredBy = game.winner;
-      if (game.winner === 0) scoreBlue++;
-      else scoreGreen++;
-    } else if (game.scoredBy !== game.winner) {
-      if (game.scoredBy === 0) scoreBlue--;
-      else scoreGreen--;
-      game.scoredBy = game.winner;
-      if (game.winner === 0) scoreBlue++;
-      else scoreGreen++;
-    }
-  }
-  drawBoard(ctx, canvas, game);
-  updateUI();
+  afterPlaceEdge();
 }
 
 function setupDragEventHandlers() {
@@ -162,7 +196,7 @@ function cleanupDragEventHandlers() {
 }
 
 function handleDragStart(e) {
-  if (game.winner !== null || !dragModeEnabled) return;
+  if (game.winner !== null || !dragModeEnabled || aiThinking) return;
   
   const rect = canvas.getBoundingClientRect();
   let startX, startY;
@@ -226,38 +260,19 @@ function handleDragMove(e) {
 }
 
 function handleDragEnd(e) {
-  if (!dragStartPoint || game.winner !== null) return;
+  if (!dragStartPoint || game.winner !== null || aiThinking) return;
   
   const edge = currentPreviewEdge;
-  
-  if (edge) {
-    placeEdge(game, edge.row, edge.col, edge.orientation);
-    updateGameState();
-  }
   
   canvas.classList.remove('dragging');
   canvas.classList.add('grab');
   cleanupDragEventHandlers();
-  drawBoard(ctx, canvas, game);
-}
-
-function updateGameState() {
-  drawBoard(ctx, canvas, game);
-  updateUI();
   
-  if (game.winner !== null) {
-    if (game.scoredBy === -1) {
-      game.scoredBy = game.winner;
-      if (game.winner === 0) scoreBlue++;
-      else scoreGreen++;
-    } else if (game.scoredBy !== game.winner) {
-      if (game.scoredBy === 0) scoreBlue--;
-      else scoreGreen--;
-      game.scoredBy = game.winner;
-      if (game.winner === 0) scoreBlue++;
-      else scoreGreen++;
-    }
-    updateScoreDisplay();
+  if (edge) {
+    placeEdge(game, edge.row, edge.col, edge.orientation);
+    afterPlaceEdge();
+  } else {
+    drawBoard(ctx, canvas, game);
   }
 }
 
@@ -358,6 +373,56 @@ function loadWinDirection() {
   }
 }
 
+const aiToggle = document.getElementById('ai-toggle');
+const aiDifficultySelect = document.getElementById('ai-difficulty');
+const aiOptions = document.getElementById('ai-options');
+const aiSideBtn = document.getElementById('ai-side-btn');
+
+function toggleAI() {
+  aiEnabled = !aiEnabled;
+  if (aiEnabled) {
+    aiToggle.textContent = 'On';
+    aiToggle.classList.remove('off');
+    aiToggle.classList.add('on');
+    aiOptions.classList.remove('hidden');
+    if (game && game.winner === null && game.currentPlayer === aiPlayer) {
+      setTimeout(() => startAIThinking(), 100);
+    }
+  } else {
+    aiToggle.textContent = 'Off';
+    aiToggle.classList.remove('on');
+    aiToggle.classList.add('off');
+    aiOptions.classList.add('hidden');
+  }
+}
+
+function changeAIDifficulty() {
+  aiDifficulty = aiDifficultySelect.value;
+}
+
+function toggleHumanSide() {
+  humanPlayer = 1 - humanPlayer;
+  aiPlayer = 1 - humanPlayer;
+  updateAISideButton();
+  if (game) {
+    initGame(parseInt(sizeSelect.value));
+  }
+}
+
+function updateAISideButton() {
+  aiSideBtn.textContent = humanPlayer === 0 ? 'Play as 🔵' : 'Play as 🟢';
+}
+
+function loadAIState() {
+  if (aiEnabled && game && game.winner === null && game.currentPlayer === aiPlayer) {
+    setTimeout(() => startAIThinking(), 100);
+  }
+}
+
+aiToggle.addEventListener('click', toggleAI);
+aiDifficultySelect.addEventListener('change', changeAIDifficulty);
+aiSideBtn.addEventListener('click', toggleHumanSide);
+
 // Event listeners
 canvas.addEventListener('click', handleBoardInteraction);
 canvas.addEventListener('touchstart', handleBoardInteraction, { passive: false });
@@ -377,11 +442,14 @@ resetScoreBtn.addEventListener('click', () => {
 });
 
 turnText.addEventListener('click', () => {
-  if (!game || game.moves.length !== 0 || game.winner !== null) return;
+  if (!game || game.moves.length !== 0 || game.winner !== null || aiThinking) return;
   game.currentPlayer = 1 - game.currentPlayer;
   startingPlayer = game.currentPlayer;
   updateUI();
   resetDragState();
+  if (aiEnabled && game.currentPlayer === aiPlayer) {
+    startAIThinking();
+  }
 });
 
 undoBtn.addEventListener('click', () => {
@@ -414,3 +482,4 @@ toggleProgressBtn.addEventListener('click', () => {
 loadWinDirection();
 initGame(parseInt(sizeSelect.value));
 loadDragMode();
+loadAIState();

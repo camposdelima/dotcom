@@ -25,6 +25,7 @@ dotcom/
 └── js/
     ├── game.js         # Game state, rules, win detection (BFS)
     ├── board.js        # Canvas rendering, edge click/touch detection
+    ├── ai.js           # MCTS AI opponent (clone, rollout, UCB1 tree, chunked)
     └── app.js          # Initialization, events, UI updates
 ```
 
@@ -62,15 +63,25 @@ dotcom/
 - Initializes game, resizes canvas (responsive), orchestrates click/touch events
 - Updates UI: turn indicator, win message, scoreboard
 - Controls undo, score reset, direction toggle, drag/click mode toggle
+- Controls AI toggle, difficulty, side selection
+
+### ai.js
+- `cloneGame(game)` — deep clone for MCTS simulation
+- `getLegalMoves(game)` — all currently legal (empty + allowed) edges
+- `simulate(game)` — random rollout to completion, returns winner
+- `MCTSNode` class — UCB1 tree with selection/expansion/evaluation/backprop
+- `runMCTSOnce(rootNode, game, aiPlayer)` — single MCTS iteration
+- `evaluatePosition(game, player)` — heuristic evaluation via `getProgress` (replaces random rollouts)
+- `scheduleAIMove(game, aiPlayer, difficulty, onComplete)` — chunked MCTS (50ms chunks via setTimeout) to keep UI responsive; 2000/6500/7500 iterations for Easy/Medium/Hard (fixed, board-independent)
 
 ## Available Sizes
 
 | Grid  | Difficulty | Edges |
 |-------|-----------|-------|
-| 5×5   | Easy      | 40    |
-| 7×7   | Medium    | 84    |
-| 9×9   | Hard      | 144   |
-| 11×11 | Expert    | 220   |
+| 5×5   | Expert    | 40    |
+| 7×7   | Hard      | 84    |
+| 9×9   | Medium    | 144   |
+| 11×11 | Easy      | 220   |
 
 ## How to Run
 
@@ -143,7 +154,7 @@ The `steps` parameter makes the mouse pass through intermediate positions, essen
 
 ## Possible Next Steps
 
-- [ ] AI opponent (minimax / graph search)
+- [x] AI opponent (MCTS, chunked)
 - [ ] Edge hover highlight (desktop)
 - [ ] Retina/HiDPI support (devicePixelRatio)
 - [x] Undo button

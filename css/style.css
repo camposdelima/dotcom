@@ -388,8 +388,9 @@ header { order: 1; }
 #progress-bar { order: 3; }
 #info-bar { order: 4; }
 #board-container { order: 5; }
-#controls { order: 6; }
-#message { order: 7; }
+#ai-section { order: 6; }
+#controls { order: 7; }
+#message { order: 8; }
 
 canvas {
   border-radius: 10px;
@@ -468,6 +469,114 @@ canvas {
   transform: translateY(0);
   opacity: 0.85;
   box-shadow: 0 1px 4px rgba(233,69,96,0.2);
+}
+
+#ai-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 3px 0;
+  font-size: 0.8rem;
+}
+
+.ai-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ai-label {
+  font-weight: 600;
+  color: #888;
+  font-size: 0.8rem;
+  letter-spacing: 0.3px;
+}
+
+.toggle-switch {
+  padding: 4px 14px;
+  border: 1px solid #333;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+  line-height: 1.4;
+  min-width: 48px;
+}
+
+.toggle-switch.off {
+  background: #1a1a2e;
+  color: #666;
+  border-color: #333;
+}
+
+.toggle-switch.off:hover {
+  background: #222;
+  color: #888;
+}
+
+.toggle-switch.on {
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: #fff;
+  border-color: #2ecc71;
+  box-shadow: 0 2px 10px rgba(46,204,113,0.3);
+}
+
+.toggle-switch.on:hover {
+  box-shadow: 0 2px 14px rgba(46,204,113,0.5);
+}
+
+#ai-options {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+#ai-options.hidden {
+  display: none;
+}
+
+#ai-difficulty {
+  flex: 1;
+  max-width: 110px;
+  padding: 5px 8px;
+  border: 1px solid #222;
+  border-radius: 6px;
+  background: #1a1a2e;
+  color: #ddd;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+#ai-difficulty:focus {
+  border-color: #2ecc71;
+  box-shadow: 0 0 0 2px rgba(46,204,113,0.15);
+}
+
+.ai-side-btn {
+  padding: 5px 10px;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #1a1a2e;
+  color: #bbb;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.ai-side-btn:hover {
+  background: #222;
+  border-color: #555;
+  color: #fff;
 }
 
 #message {

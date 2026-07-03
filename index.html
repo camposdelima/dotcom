@@ -48,12 +48,26 @@
           <button id="undo-btn">⟲ Undo</button>
         </div>
       </div>
+      <div id="ai-section">
+        <div class="ai-toggle-row">
+          <span class="ai-label">AI Opponent</span>
+          <button id="ai-toggle" class="toggle-switch off">Off</button>
+        </div>
+        <div id="ai-options" class="hidden">
+          <select id="ai-difficulty">
+            <option value="easy">Easy</option>
+            <option value="medium" selected>Medium</option>
+            <option value="hard">Hard</option>
+          </select>
+          <button id="ai-side-btn" class="ai-side-btn">Play as 🔵</button>
+        </div>
+      </div>
       <div id="controls">
         <select id="size-select">
-          <option value="5">5×5 (Easy)</option>
-          <option value="7" selected>7×7 (Medium)</option>
-          <option value="9">9×9 (Hard)</option>
-          <option value="11">11×11 (Expert)</option>
+          <option value="5">5×5 (Expert)</option>
+          <option value="7" selected>7×7 (Hard)</option>
+          <option value="9">9×9 (Medium)</option>
+          <option value="11">11×11 (Easy)</option>
         </select>
         <div id="bottom-actions">
           <button id="direction-toggle" class="dir-btn" title="Switch to Top ↔ Bottom">⟳</button>
@@ -64,8 +78,9 @@
     </div>
     <div id="message"></div>
   </div>
-  <script src="js/game.js?v=2"></script>
-  <script src="js/board.js?v=2"></script>
-  <script src="js/app.js?v=2"></script>
+  <script src="js/game.js?v=3"></script>
+  <script src="js/board.js?v=3"></script>
+  <script src="js/ai.js?v=1"></script>
+  <script src="js/app.js?v=3"></script>
 </body>
 </html>
