@@ -81,12 +81,20 @@ function updateUI() {
   const dirLabel = DIRECTION_LABELS[winDirection].name;
 
   if (game.winner !== null) {
-    const name = game.winner === 0 ? 'Blue' : 'Green';
-    turnText.textContent = `${name} wins!`;
-    turnText.style.cursor = 'default';
-    turnDot.style.background = game.winner === 0 ? '#3498DB' : '#2ECC71';
-    turnDot.style.boxShadow = `0 0 10px ${game.winner === 0 ? '#3498DB' : '#2ECC71'}`;
-    messageEl.textContent = `${name} connected ${dirLabel}!`;
+    if (game.winner === -1) {
+      turnText.textContent = 'Draw!';
+      turnText.style.cursor = 'default';
+      turnDot.style.background = '#888';
+      turnDot.style.boxShadow = '0 0 10px rgba(136,136,136,0.5)';
+      messageEl.textContent = 'Board full — draw by progress!';
+    } else {
+      const name = game.winner === 0 ? 'Blue' : 'Green';
+      turnText.textContent = `${name} wins!`;
+      turnText.style.cursor = 'default';
+      turnDot.style.background = game.winner === 0 ? '#3498DB' : '#2ECC71';
+      turnDot.style.boxShadow = `0 0 10px ${game.winner === 0 ? '#3498DB' : '#2ECC71'}`;
+      messageEl.textContent = `${name} connected ${dirLabel}!`;
+    }
   } else {
     const name = game.currentPlayer === 0 ? 'Blue' : 'Green';
     const label = game.moves.length === 0 ? ' (first)' : ':';
@@ -111,7 +119,7 @@ function afterPlaceEdge() {
   drawBoard(ctx, canvas, game);
   updateUI();
 
-  if (game.winner !== null) {
+  if (game.winner !== null && game.winner >= 0) {
     if (game.scoredBy === -1) {
       game.scoredBy = game.winner;
       if (game.winner === 0) scoreBlue++;

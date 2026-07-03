@@ -42,6 +42,21 @@ function isEdgeAllowed(game, row, col, orientation, player) {
       && !hasEW(game, row + 1, col, 1 - player);
 }
 
+function hasLegalMoves(game) {
+  const player = game.currentPlayer;
+  for (let r = 0; r < game.rows; r++) {
+    for (let c = 0; c < game.cols - 1; c++) {
+      if (game.horizontalEdges[r][c] === null && isEdgeAllowed(game, r, c, 'h', player)) return true;
+    }
+  }
+  for (let r = 0; r < game.rows - 1; r++) {
+    for (let c = 0; c < game.cols; c++) {
+      if (game.verticalEdges[r][c] === null && isEdgeAllowed(game, r, c, 'v', player)) return true;
+    }
+  }
+  return false;
+}
+
 function placeEdge(game, row, col, orientation) {
   if (game.winner !== null) return false;
 
@@ -67,6 +82,19 @@ function placeEdge(game, row, col, orientation) {
   }
 
   game.currentPlayer = 1 - game.currentPlayer;
+
+  if (!hasLegalMoves(game)) {
+    const p0 = getProgress(game, 0);
+    const p1 = getProgress(game, 1);
+    if (p0 > p1) {
+      game.winner = 0;
+    } else if (p1 > p0) {
+      game.winner = 1;
+    } else {
+      game.winner = -1;
+    }
+  }
+
   return true;
 }
 
@@ -277,6 +305,7 @@ function undoMove(game) {
   game.winner = null;
   game.winningPath = null;
   game.winningEdges = null;
+  game.scoredBy = -1;
 
   return true;
 }
